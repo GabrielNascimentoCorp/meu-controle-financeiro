@@ -3,240 +3,185 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Finanças 2026 - Mobile Pro</title>
+    <title>Finanças 2026</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        :root { --primary: #2563eb; --success: #10b981; --danger: #ef4444; --bg: #f8fafc; --fixo: #7c3aed; }
+        :root { --primary: #2563eb; --success: #10b981; --danger: #ef4444; --bg: #f1f5f9; --fixo: #7c3aed; }
         
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: -apple-system, system-ui, sans-serif; }
         
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            background: var(--bg); margin: 0; padding: 10px; color: #1e293b; 
-        }
+        body { background: var(--bg); margin: 0; padding-bottom: 80px; color: #1e293b; }
 
-        .container { max-width: 1200px; margin: 0 auto; }
-        
-        h1 { font-size: 1.5rem; text-align: center; margin: 15px 0; }
+        /* Cabeçalho Fixo */
+        header { background: white; padding: 15px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        h1 { margin: 0; font-size: 1.2rem; text-align: center; }
 
-        /* Cards Responsivos */
-        .summary-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); 
-            gap: 10px; margin-bottom: 20px; 
-        }
-        
-        .card { 
-            background: white; padding: 12px; border-radius: 12px; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05); text-align: center; 
-        }
-        
+        /* Cards de Saldo */
+        .summary-scroll { display: flex; overflow-x: auto; gap: 10px; padding: 15px; scrollbar-width: none; }
+        .summary-scroll::-webkit-scrollbar { display: none; }
+        .card { min-width: 140px; background: white; padding: 15px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); flex: 1; }
         .card h3 { margin: 0; font-size: 0.7rem; color: #64748b; text-transform: uppercase; }
-        .value { font-size: 1.1rem; font-weight: bold; margin-top: 5px; word-break: break-all; }
+        .value { font-size: 1.1rem; font-weight: bold; margin-top: 5px; }
 
-        /* Layout Principal */
-        .main-layout { 
-            display: grid; 
-            grid-template-columns: 1fr; /* Padrão Celular: Uma coluna */
-            gap: 20px; 
-        }
+        /* Navegação por Abas */
+        .tab-content { padding: 15px; display: none; max-width: 800px; margin: 0 auto; }
+        .tab-content.active { display: block; }
 
-        @media (min-width: 992px) {
-            .main-layout { grid-template-columns: 320px 1fr 300px; } /* Desktop: Três colunas */
-        }
+        /* Formulários e Listas */
+        .panel { background: white; padding: 20px; border-radius: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        input, select, button { width: 100%; padding: 14px; margin: 8px 0; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 16px; }
+        
+        .btn-main { background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; }
+        .btn-excel { background: var(--success); color: white; border: none; margin-top: 15px; }
 
-        .panel { 
-            background: white; padding: 15px; border-radius: 12px; 
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05); height: fit-content; 
-        }
-        
-        h3 { margin-top: 0; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; font-size: 1rem; }
-        
-        /* Inputs Otimizados para Toque */
-        input, select, button { 
-            width: 100%; padding: 12px; margin: 8px 0; 
-            border: 1px solid #e2e8f0; border-radius: 10px; 
-            font-size: 16px; /* Evita zoom automático no iOS */
-        }
-        
-        .btn-add { background: var(--primary); color: white; border: none; cursor: pointer; font-weight: bold; }
-        .btn-fixo { background: var(--fixo); color: white; border: none; cursor: pointer; font-weight: bold; }
-        .btn-excel { background: var(--success); color: white; border: none; cursor: pointer; }
-        
-        /* Tabela Mobile Friendly */
-        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        table { width: 100%; border-collapse: collapse; min-width: 400px; }
-        th { text-align: left; background: #f8fafc; padding: 10px; font-size: 12px; color: #64748b; }
-        td { padding: 12px 10px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
-        
-        .negativo { color: var(--danger); font-weight: bold; }
-        .positivo { color: var(--success); font-weight: bold; }
-        
-        .fixo-item { 
-            display: flex; justify-content: space-between; align-items: center; 
-            padding: 10px 0; border-bottom: 1px dashed #eee; font-size: 0.9rem; 
-        }
+        /* Lista de Histórico */
+        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #f1f5f9; background: white; margin-bottom: 8px; border-radius: 12px; }
+        .item-info { display: flex; flex-direction: column; }
+        .item-desc { font-weight: 600; font-size: 0.95rem; }
+        .item-date { font-size: 0.75rem; color: #64748b; }
+        .item-val { font-weight: bold; }
 
-        .btn-del-small { 
-            background: #fee2e2; color: var(--danger); border: none; 
-            padding: 5px 10px; border-radius: 6px; font-size: 16px; 
-        }
+        /* Menu Inferior */
+        nav.mobile-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #e2e8f0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
+        .nav-btn { background: none; border: none; color: #94a3b8; font-size: 0.7rem; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; }
+        .nav-btn.active { color: var(--primary); }
+        .nav-icon { font-size: 1.4rem; }
 
-        .btn-clear-minimal { 
-            background: none; border: none; color: #94a3b8; 
-            cursor: pointer; font-size: 11px; text-decoration: underline; 
-            margin-top: 20px; width: 100%; 
-        }
+        .negativo { color: var(--danger); }
+        .positivo { color: var(--success); }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>💰 Finanças 2026</h1>
+<header><h1>📊 Finanças 2026</h1></header>
 
-    <div class="summary-grid">
-        <div class="card">
-            <h3>Entradas</h3>
-            <div class="value positivo" id="cardEntradas">R$ 0,00</div>
-        </div>
-        <div class="card">
-            <h3>Saídas</h3>
-            <div class="value negativo" id="cardSaidas">R$ 0,00</div>
-        </div>
-        <div class="card" style="border-bottom: 3px solid var(--fixo);">
-            <h3>Fixos</h3>
-            <div class="value" style="color: var(--fixo)" id="cardFixos">R$ 0,00</div>
-        </div>
-        <div class="card" style="background: #eff6ff;">
-            <h3>Sobra</h3>
-            <div class="value" id="cardSobra">R$ 0,00</div>
-        </div>
-    </div>
+<div class="summary-scroll">
+    <div class="card"><h3>Saldo</h3><div class="value" id="resSaldo">R$ 0,00</div></div>
+    <div class="card"><h3>Ganhos</h3><div class="value positivo" id="resEntradas">R$ 0,00</div></div>
+    <div class="card"><h3>Gastos</h3><div class="value negativo" id="resSaidas">R$ 0,00</div></div>
+    <div class="card" style="border: 1px solid var(--fixo);"><h3>Fixos</h3><div class="value" style="color: var(--fixo)" id="resFixos">R$ 0,00</div></div>
+</div>
 
-    <div class="main-layout">
-        <div class="panel">
-            <h3>Lançar</h3>
-            <form id="formTransacao">
-                <input type="text" id="desc" placeholder="Descrição" required>
-                <input type="number" id="valor" placeholder="Valor R$" step="0.01" required>
-                <select id="tipo">
-                    <option value="saida">Saída (Variável)</option>
-                    <option value="entrada">Entrada (Ganho)</option>
-                </select>
-                <input type="date" id="data" required>
-                <button type="submit" class="btn-add">Registrar</button>
-            </form>
-            <button onclick="exportarExcel()" class="btn-excel">Baixar Excel</button>
-        </div>
-
-        <div class="panel">
-            <h3>Histórico</h3>
-            <div class="table-responsive">
-                <table>
-                    <thead>
-                        <tr><th>Data</th><th>Desc.</th><th>Valor</th><th></th></tr>
-                    </thead>
-                    <tbody id="tabelaCorpo"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <div class="panel">
-            <h3>Custos Fixos</h3>
-            <form id="formFixo">
-                <input type="text" id="fixoDesc" placeholder="Ex: Aluguel" required>
-                <input type="number" id="fixoValor" placeholder="Valor R$" step="0.01" required>
-                <button type="submit" class="btn-fixo">Fixar Valor</button>
-            </form>
-            <div id="listaFixos"></div>
-            <button onclick="limparTudo()" class="btn-clear-minimal">Resetar tudo</button>
-        </div>
+<div id="tab-add" class="tab-content active">
+    <div class="panel">
+        <h3>Nova Transação</h3>
+        <form id="formTrans">
+            <input type="text" id="desc" placeholder="Descrição (Ex: Almoço)" required>
+            <input type="number" id="valor" placeholder="Valor R$" step="0.01" required>
+            <select id="tipo">
+                <option value="saida">Saída (Variável)</option>
+                <option value="entrada">Entrada (Ganho)</option>
+            </select>
+            <input type="date" id="data" required>
+            <button type="submit" class="btn-main">Salvar Registro</button>
+        </form>
+        <button onclick="exportarExcel()" class="btn-excel">Extrair para Excel</button>
     </div>
 </div>
 
+<div id="tab-list" class="tab-content">
+    <h3 style="margin-left: 10px;">Movimentações</h3>
+    <div id="listaTrans"></div>
+</div>
+
+<div id="tab-fixo" class="tab-content">
+    <div class="panel">
+        <h3>Custos Fixos Mensais</h3>
+        <form id="formFixo">
+            <input type="text" id="fDesc" placeholder="Ex: Aluguel" required>
+            <input type="number" id="fValor" placeholder="Valor R$" step="0.01" required>
+            <button type="submit" class="btn-main" style="background: var(--fixo);">Adicionar Fixo</button>
+        </form>
+        <div id="listaFixos" style="margin-top: 20px;"></div>
+        <button onclick="limparDados()" style="background:none; border:none; color:#94a3b8; text-decoration:underline; font-size:12px; margin-top:20px; width:100%;">Resetar todos os dados de teste</button>
+    </div>
+</div>
+
+<nav class="mobile-nav">
+    <button class="nav-btn active" onclick="switchTab('tab-add', this)"><span class="nav-icon">➕</span>Lançar</button>
+    <button class="nav-btn" onclick="switchTab('tab-list', this)"><span class="nav-icon">📜</span>Histórico</button>
+    <button class="nav-btn" onclick="switchTab('tab-fixo', this)"><span class="nav-icon">🏠</span>Fixos</button>
+</nav>
+
 <script>
-    let transacoes = JSON.parse(localStorage.getItem('fin_trans_2026')) || [];
-    let fixos = JSON.parse(localStorage.getItem('fin_fixos_2026')) || [];
+    let trans = JSON.parse(localStorage.getItem('f26_t')) || [];
+    let fixos = JSON.parse(localStorage.getItem('f26_f')) || [];
     document.getElementById('data').valueAsDate = new Date();
 
-    document.getElementById('formTransacao').addEventListener('submit', function(e) {
+    function switchTab(tabId, btn) {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        btn.classList.add('active');
+        window.scrollTo(0,0);
+    }
+
+    document.getElementById('formTrans').addEventListener('submit', function(e) {
         e.preventDefault();
-        transacoes.push({
-            id: Date.now(),
-            desc: document.getElementById('desc').value,
-            valor: parseFloat(document.getElementById('valor').value),
-            tipo: document.getElementById('tipo').value,
-            data: document.getElementById('data').value
-        });
-        salvar();
-        this.reset();
-        document.getElementById('data').valueAsDate = new Date();
+        trans.push({ id: Date.now(), desc: document.getElementById('desc').value, valor: parseFloat(document.getElementById('valor').value), tipo: document.getElementById('tipo').value, data: document.getElementById('data').value });
+        save(); this.reset(); document.getElementById('data').valueAsDate = new Date();
     });
 
     document.getElementById('formFixo').addEventListener('submit', function(e) {
         e.preventDefault();
-        fixos.push({
-            id: Date.now(),
-            desc: document.getElementById('fixoDesc').value,
-            valor: parseFloat(document.getElementById('fixoValor').value)
-        });
-        salvar();
-        this.reset();
+        fixos.push({ id: Date.now(), desc: document.getElementById('fDesc').value, valor: parseFloat(document.getElementById('fValor').value) });
+        save(); this.reset();
     });
 
-    function salvar() {
-        localStorage.setItem('fin_trans_2026', JSON.stringify(transacoes));
-        localStorage.setItem('fin_fixos_2026', JSON.stringify(fixos));
-        renderizar();
+    function save() {
+        localStorage.setItem('f26_t', JSON.stringify(trans));
+        localStorage.setItem('f26_f', JSON.stringify(fixos));
+        render();
     }
 
-    function excluirTransacao(id) { if(confirm("Excluir?")) { transacoes = transacoes.filter(t => t.id !== id); salvar(); } }
-    function excluirFixo(id) { if(confirm("Excluir?")) { fixos = fixos.filter(f => f.id !== id); salvar(); } }
-    function limparTudo() { if(confirm("Limpar tudo?")) { transacoes = []; fixos = []; salvar(); } }
-
-    function renderizar() {
-        const corpo = document.getElementById('tabelaCorpo');
-        corpo.innerHTML = '';
-        let totalE = 0; let totalS = 0;
-
-        transacoes.sort((a,b) => new Date(b.data) - new Date(a.data)).forEach(t => {
+    function render() {
+        let e = 0, s = 0, f = 0;
+        const listT = document.getElementById('listaTrans');
+        listT.innerHTML = '';
+        
+        trans.sort((a,b) => new Date(b.data) - new Date(a.data)).forEach(t => {
             const isE = t.tipo === 'entrada';
-            if(isE) totalE += t.valor; else totalS += t.valor;
-            corpo.innerHTML += `<tr>
-                <td>${t.data.split('-').slice(1).reverse().join('/')}</td>
-                <td>${t.desc}</td>
-                <td class="${isE?'positivo':'negativo'}">R$${t.valor.toFixed(2)}</td>
-                <td><button class="btn-del-small" onclick="excluirTransacao(${t.id})">&times;</button></td>
-            </tr>`;
+            if(isE) e += t.valor; else s += t.valor;
+            listT.innerHTML += `
+                <div class="item-row">
+                    <div class="item-info">
+                        <span class="item-desc">${t.desc}</span>
+                        <span class="item-date">${t.data.split('-').reverse().join('/')}</span>
+                    </div>
+                    <div class="item-val ${isE?'positivo':'negativo'}">
+                        ${isE?'+':'-'} R$ ${t.valor.toFixed(2)}
+                        <span onclick="delT(${t.id})" style="margin-left:10px; color:#ccc;">✕</span>
+                    </div>
+                </div>`;
         });
 
-        const listaF = document.getElementById('listaFixos');
-        listaF.innerHTML = '';
-        let totalF = 0;
-        fixos.forEach(f => {
-            totalF += f.valor;
-            listaF.innerHTML += `<div class="fixo-item">
-                <span>${f.desc}</span>
-                <span>R$${f.valor.toFixed(2)} <button class="btn-del-small" onclick="excluirFixo(${f.id})">&times;</button></span>
-            </div>`;
+        const listF = document.getElementById('listaFixos');
+        listF.innerHTML = '';
+        fixos.forEach(x => {
+            f += x.valor;
+            listF.innerHTML += `<div class="item-row"><span>${x.desc}</span><b>R$ ${x.valor.toFixed(2)} <span onclick="delF(${x.id})" style="color:#ccc; font-weight:normal;">✕</span></b></div>`;
         });
 
-        const sobra = totalE - totalS - totalF;
-        document.getElementById('cardEntradas').innerText = `R$ ${totalE.toLocaleString('pt-BR')}`;
-        document.getElementById('cardSaidas').innerText = `R$ ${totalS.toLocaleString('pt-BR')}`;
-        document.getElementById('cardFixos').innerText = `R$ ${totalF.toLocaleString('pt-BR')}`;
-        document.getElementById('cardSobra').innerText = `R$ ${sobra.toLocaleString('pt-BR')}`;
-        document.getElementById('cardSobra').className = 'value ' + (sobra >= 0 ? 'positivo' : 'negativo');
+        const saldo = e - s - f;
+        document.getElementById('resSaldo').innerText = `R$ ${saldo.toLocaleString('pt-BR')}`;
+        document.getElementById('resEntradas').innerText = `R$ ${e.toLocaleString('pt-BR')}`;
+        document.getElementById('resSaidas').innerText = `R$ ${s.toLocaleString('pt-BR')}`;
+        document.getElementById('resFixos').innerText = `R$ ${f.toLocaleString('pt-BR')}`;
+        document.getElementById('resSaldo').className = 'value ' + (saldo >= 0 ? 'positivo' : 'negativo');
     }
+
+    function delT(id) { if(confirm("Excluir?")) { trans = trans.filter(x => x.id !== id); save(); } }
+    function delF(id) { if(confirm("Excluir?")) { fixos = fixos.filter(x => x.id !== id); save(); } }
+    function limparDados() { if(confirm("Limpar tudo?")) { trans = []; fixos = []; save(); } }
 
     function exportarExcel() {
-        const ws = XLSX.utils.json_to_sheet([...transacoes, ...fixos.map(f => ({...f, tipo: 'FIXO'}))]);
+        const ws = XLSX.utils.json_to_sheet([...trans, ...fixos.map(x => ({...x, tipo: 'FIXO'}))]);
         const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Financeiro");
-        XLSX.writeFile(wb, "Financeiro_2026.xlsx");
+        XLSX.utils.book_append_sheet(wb, ws, "Finanças 2026");
+        XLSX.writeFile(wb, "Finanças_2026.xlsx");
     }
 
-    renderizar();
+    render();
 </script>
 </body>
 </html>

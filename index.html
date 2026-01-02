@@ -3,104 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Finanças 2026</title>
+    <title>Finanças 2026 - Híbrido</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        :root { --primary: #2563eb; --success: #10b981; --danger: #ef4444; --bg: #f1f5f9; --fixo: #7c3aed; }
+        :root { --primary: #2563eb; --success: #10b981; --danger: #ef4444; --bg: #f8fafc; --fixo: #7c3aed; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        body { background: var(--bg); margin: 0; padding: 0; color: #1e293b; }
+
+        /* HEADER */
+        header { background: white; padding: 15px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        h1 { margin: 0; font-size: 1.4rem; }
+
+        /* CARDS DE RESUMO */
+        .summary-grid { display: flex; overflow-x: auto; gap: 15px; padding: 20px; max-width: 1200px; margin: 0 auto; }
+        .card { min-width: 180px; flex: 1; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); text-align: center; }
+        .card h3 { margin: 0; font-size: 0.8rem; color: #64748b; text-transform: uppercase; }
+        .value { font-size: 1.4rem; font-weight: bold; margin-top: 8px; }
+
+        /* LAYOUT PRINCIPAL */
+        .main-container { max-width: 1200px; margin: 0 auto; padding: 0 20px 100px 20px; }
         
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: -apple-system, system-ui, sans-serif; }
-        
-        body { background: var(--bg); margin: 0; padding-bottom: 80px; color: #1e293b; }
+        /* ESTILO DOS PAINÉIS */
+        .panel { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        h3 { margin-top: 0; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; }
+        input, select, button { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; }
+        .btn-add { background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; }
+        .btn-excel { background: var(--success); color: white; border: none; cursor: pointer; }
 
-        /* Cabeçalho Fixo */
-        header { background: white; padding: 15px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        h1 { margin: 0; font-size: 1.2rem; text-align: center; }
+        /* TABELA / LISTA */
+        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #f1f5f9; }
+        .negativo { color: var(--danger); font-weight: bold; }
+        .positivo { color: var(--success); font-weight: bold; }
 
-        /* Cards de Saldo */
-        .summary-scroll { display: flex; overflow-x: auto; gap: 10px; padding: 15px; scrollbar-width: none; }
-        .summary-scroll::-webkit-scrollbar { display: none; }
-        .card { min-width: 140px; background: white; padding: 15px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); flex: 1; }
-        .card h3 { margin: 0; font-size: 0.7rem; color: #64748b; text-transform: uppercase; }
-        .value { font-size: 1.1rem; font-weight: bold; margin-top: 5px; }
-
-        /* Navegação por Abas */
-        .tab-content { padding: 15px; display: none; max-width: 800px; margin: 0 auto; }
-        .tab-content.active { display: block; }
-
-        /* Formulários e Listas */
-        .panel { background: white; padding: 20px; border-radius: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        input, select, button { width: 100%; padding: 14px; margin: 8px 0; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 16px; }
-        
-        .btn-main { background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; }
-        .btn-excel { background: var(--success); color: white; border: none; margin-top: 15px; }
-
-        /* Lista de Histórico */
-        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #f1f5f9; background: white; margin-bottom: 8px; border-radius: 12px; }
-        .item-info { display: flex; flex-direction: column; }
-        .item-desc { font-weight: 600; font-size: 0.95rem; }
-        .item-date { font-size: 0.75rem; color: #64748b; }
-        .item-val { font-weight: bold; }
-
-        /* Menu Inferior */
-        nav.mobile-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #e2e8f0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
-        .nav-btn { background: none; border: none; color: #94a3b8; font-size: 0.7rem; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; }
+        /* NAVEGAÇÃO MOBILE (ESCONDIDA NO PC) */
+        .mobile-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #eee; justify-content: space-around; padding: 10px; z-index: 1000; }
+        .nav-btn { background: none; border: none; color: #94a3b8; font-size: 0.7rem; display: flex; flex-direction: column; align-items: center; gap: 5px; }
         .nav-btn.active { color: var(--primary); }
-        .nav-icon { font-size: 1.4rem; }
 
-        .negativo { color: var(--danger); }
-        .positivo { color: var(--success); }
+        /* --- CONFIGURAÇÃO PARA PC (TELA GRANDE) --- */
+        @media (min-width: 992px) {
+            .summary-grid { overflow-x: hidden; }
+            .desktop-layout { display: grid; grid-template-columns: 320px 1fr 300px; gap: 20px; }
+            .tab-content { display: block !important; } /* Mostra tudo no PC */
+            .mobile-nav { display: none !important; } /* Esconde menu inferior */
+            .panel { height: fit-content; }
+        }
+
+        /* --- CONFIGURAÇÃO PARA CELULAR (TELA PEQUENA) --- */
+        @media (max-width: 991px) {
+            .tab-content { display: none; }
+            .tab-content.active { display: block; }
+            .mobile-nav { display: flex; }
+            .main-container { padding-bottom: 90px; }
+            .card { min-width: 140px; padding: 15px; }
+            .value { font-size: 1.1rem; }
+        }
     </style>
 </head>
 <body>
 
-<header><h1>📊 Finanças 2026</h1></header>
+<header><h1>Finanças Pro 2026</h1></header>
 
-<div class="summary-scroll">
+<div class="summary-grid">
     <div class="card"><h3>Saldo</h3><div class="value" id="resSaldo">R$ 0,00</div></div>
     <div class="card"><h3>Ganhos</h3><div class="value positivo" id="resEntradas">R$ 0,00</div></div>
     <div class="card"><h3>Gastos</h3><div class="value negativo" id="resSaidas">R$ 0,00</div></div>
-    <div class="card" style="border: 1px solid var(--fixo);"><h3>Fixos</h3><div class="value" style="color: var(--fixo)" id="resFixos">R$ 0,00</div></div>
+    <div class="card" style="border-top: 4px solid var(--fixo);"><h3>Fixos</h3><div class="value" style="color: var(--fixo)" id="resFixos">R$ 0,00</div></div>
 </div>
 
-<div id="tab-add" class="tab-content active">
-    <div class="panel">
-        <h3>Nova Transação</h3>
-        <form id="formTrans">
-            <input type="text" id="desc" placeholder="Descrição (Ex: Almoço)" required>
-            <input type="number" id="valor" placeholder="Valor R$" step="0.01" required>
-            <select id="tipo">
-                <option value="saida">Saída (Variável)</option>
-                <option value="entrada">Entrada (Ganho)</option>
-            </select>
-            <input type="date" id="data" required>
-            <button type="submit" class="btn-main">Salvar Registro</button>
-        </form>
-        <button onclick="exportarExcel()" class="btn-excel">Extrair para Excel</button>
-    </div>
-</div>
+<div class="main-container">
+    <div class="desktop-layout">
+        
+        <div id="tab-add" class="tab-content active panel">
+            <h3>Nova Transação</h3>
+            <form id="formTrans">
+                <input type="text" id="desc" placeholder="Descrição" required>
+                <input type="number" id="valor" placeholder="Valor R$" step="0.01" required>
+                <select id="tipo">
+                    <option value="saida">Saída (Débito)</option>
+                    <option value="entrada">Entrada (Crédito)</option>
+                </select>
+                <input type="date" id="data" required>
+                <button type="submit" class="btn-add">Registrar</button>
+            </form>
+            <button onclick="exportarExcel()" class="btn-excel">Exportar Excel</button>
+        </div>
 
-<div id="tab-list" class="tab-content">
-    <h3 style="margin-left: 10px;">Movimentações</h3>
-    <div id="listaTrans"></div>
-</div>
+        <div id="tab-list" class="tab-content panel">
+            <h3>Movimentações</h3>
+            <div id="listaTrans"></div>
+        </div>
 
-<div id="tab-fixo" class="tab-content">
-    <div class="panel">
-        <h3>Custos Fixos Mensais</h3>
-        <form id="formFixo">
-            <input type="text" id="fDesc" placeholder="Ex: Aluguel" required>
-            <input type="number" id="fValor" placeholder="Valor R$" step="0.01" required>
-            <button type="submit" class="btn-main" style="background: var(--fixo);">Adicionar Fixo</button>
-        </form>
-        <div id="listaFixos" style="margin-top: 20px;"></div>
-        <button onclick="limparDados()" style="background:none; border:none; color:#94a3b8; text-decoration:underline; font-size:12px; margin-top:20px; width:100%;">Resetar todos os dados de teste</button>
+        <div id="tab-fixo" class="tab-content panel">
+            <h3>Gastos Fixos</h3>
+            <form id="formFixo">
+                <input type="text" id="fDesc" placeholder="Ex: Aluguel" required>
+                <input type="number" id="fValor" placeholder="Valor R$" step="0.01" required>
+                <button type="submit" class="btn-add" style="background: var(--fixo);">Fixar</button>
+            </form>
+            <div id="listaFixos" style="margin-top: 15px;"></div>
+            <button onclick="limparTudo()" style="background:none; border:none; color:#ccc; font-size:10px; margin-top:20px; cursor:pointer;">Resetar Sistema</button>
+        </div>
+
     </div>
 </div>
 
 <nav class="mobile-nav">
-    <button class="nav-btn active" onclick="switchTab('tab-add', this)"><span class="nav-icon">➕</span>Lançar</button>
-    <button class="nav-btn" onclick="switchTab('tab-list', this)"><span class="nav-icon">📜</span>Histórico</button>
-    <button class="nav-btn" onclick="switchTab('tab-fixo', this)"><span class="nav-icon">🏠</span>Fixos</button>
+    <button class="nav-btn active" onclick="switchTab('tab-add', this)"><span>➕</span>Lançar</button>
+    <button class="nav-btn" onclick="switchTab('tab-list', this)"><span>📜</span>Histórico</button>
+    <button class="nav-btn" onclick="switchTab('tab-fixo', this)"><span>🏠</span>Fixos</button>
 </nav>
 
 <script>
@@ -109,11 +120,12 @@
     document.getElementById('data').valueAsDate = new Date();
 
     function switchTab(tabId, btn) {
-        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active');
-        btn.classList.add('active');
-        window.scrollTo(0,0);
+        if(window.innerWidth < 992) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            btn.classList.add('active');
+        }
     }
 
     document.getElementById('formTrans').addEventListener('submit', function(e) {
@@ -138,28 +150,20 @@
         let e = 0, s = 0, f = 0;
         const listT = document.getElementById('listaTrans');
         listT.innerHTML = '';
-        
         trans.sort((a,b) => new Date(b.data) - new Date(a.data)).forEach(t => {
             const isE = t.tipo === 'entrada';
             if(isE) e += t.valor; else s += t.valor;
-            listT.innerHTML += `
-                <div class="item-row">
-                    <div class="item-info">
-                        <span class="item-desc">${t.desc}</span>
-                        <span class="item-date">${t.data.split('-').reverse().join('/')}</span>
-                    </div>
-                    <div class="item-val ${isE?'positivo':'negativo'}">
-                        ${isE?'+':'-'} R$ ${t.valor.toFixed(2)}
-                        <span onclick="delT(${t.id})" style="margin-left:10px; color:#ccc;">✕</span>
-                    </div>
-                </div>`;
+            listT.innerHTML += `<div class="item-row">
+                <div><b>${t.desc}</b><br><small>${t.data.split('-').reverse().join('/')}</small></div>
+                <div class="${isE?'positivo':'negativo'}">${isE?'+':'-'} R$ ${t.valor.toFixed(2)} <span onclick="delT(${t.id})" style="color:#ddd; cursor:pointer;">✕</span></div>
+            </div>`;
         });
 
         const listF = document.getElementById('listaFixos');
         listF.innerHTML = '';
         fixos.forEach(x => {
             f += x.valor;
-            listF.innerHTML += `<div class="item-row"><span>${x.desc}</span><b>R$ ${x.valor.toFixed(2)} <span onclick="delF(${x.id})" style="color:#ccc; font-weight:normal;">✕</span></b></div>`;
+            listF.innerHTML += `<div class="item-row"><span>${x.desc}</span><b>R$ ${x.valor.toFixed(2)} <span onclick="delF(${x.id})" style="color:#ddd; cursor:pointer;">✕</span></b></div>`;
         });
 
         const saldo = e - s - f;
@@ -172,13 +176,13 @@
 
     function delT(id) { if(confirm("Excluir?")) { trans = trans.filter(x => x.id !== id); save(); } }
     function delF(id) { if(confirm("Excluir?")) { fixos = fixos.filter(x => x.id !== id); save(); } }
-    function limparDados() { if(confirm("Limpar tudo?")) { trans = []; fixos = []; save(); } }
+    function limparTudo() { if(confirm("Resetar?")) { trans = []; fixos = []; save(); } }
 
     function exportarExcel() {
         const ws = XLSX.utils.json_to_sheet([...trans, ...fixos.map(x => ({...x, tipo: 'FIXO'}))]);
         const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Finanças 2026");
-        XLSX.writeFile(wb, "Finanças_2026.xlsx");
+        XLSX.utils.book_append_sheet(wb, ws, "Finanças");
+        XLSX.writeFile(wb, "Controle_2026.xlsx");
     }
 
     render();

@@ -2,71 +2,122 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Finanças 2026 - Planejamento Fixo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Finanças 2026 - Mobile Pro</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         :root { --primary: #2563eb; --success: #10b981; --danger: #ef4444; --bg: #f8fafc; --fixo: #7c3aed; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #1e293b; }
+        
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            background: var(--bg); margin: 0; padding: 10px; color: #1e293b; 
+        }
+
         .container { max-width: 1200px; margin: 0 auto; }
         
-        .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 25px; }
-        .card { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); text-align: center; }
-        .card h3 { margin: 0; font-size: 0.8rem; color: #64748b; text-transform: uppercase; }
-        .value { font-size: 1.4rem; font-weight: bold; margin-top: 8px; }
+        h1 { font-size: 1.5rem; text-align: center; margin: 15px 0; }
 
-        .main-layout { display: grid; grid-template-columns: 320px 1fr 300px; gap: 20px; }
-        .panel { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); height: fit-content; }
+        /* Cards Responsivos */
+        .summary-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); 
+            gap: 10px; margin-bottom: 20px; 
+        }
         
-        h3 { margin-top: 0; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; font-size: 1.1rem; }
-        input, select, button { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 14px; }
+        .card { 
+            background: white; padding: 12px; border-radius: 12px; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); text-align: center; 
+        }
+        
+        .card h3 { margin: 0; font-size: 0.7rem; color: #64748b; text-transform: uppercase; }
+        .value { font-size: 1.1rem; font-weight: bold; margin-top: 5px; word-break: break-all; }
+
+        /* Layout Principal */
+        .main-layout { 
+            display: grid; 
+            grid-template-columns: 1fr; /* Padrão Celular: Uma coluna */
+            gap: 20px; 
+        }
+
+        @media (min-width: 992px) {
+            .main-layout { grid-template-columns: 320px 1fr 300px; } /* Desktop: Três colunas */
+        }
+
+        .panel { 
+            background: white; padding: 15px; border-radius: 12px; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); height: fit-content; 
+        }
+        
+        h3 { margin-top: 0; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; font-size: 1rem; }
+        
+        /* Inputs Otimizados para Toque */
+        input, select, button { 
+            width: 100%; padding: 12px; margin: 8px 0; 
+            border: 1px solid #e2e8f0; border-radius: 10px; 
+            font-size: 16px; /* Evita zoom automático no iOS */
+        }
         
         .btn-add { background: var(--primary); color: white; border: none; cursor: pointer; font-weight: bold; }
         .btn-fixo { background: var(--fixo); color: white; border: none; cursor: pointer; font-weight: bold; }
-        .btn-excel { background: var(--success); color: white; border: none; cursor: pointer; margin-top: 10px; }
+        .btn-excel { background: var(--success); color: white; border: none; cursor: pointer; }
         
-        .fixo-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px dashed #eee; font-size: 0.9rem; }
-        .btn-del-small { background: none; border: none; color: #ccc; cursor: pointer; font-size: 16px; }
-        .btn-del-small:hover { color: var(--danger); }
-
-        table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; background: #f8fafc; padding: 10px; font-size: 13px; }
-        td { padding: 10px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+        /* Tabela Mobile Friendly */
+        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        table { width: 100%; border-collapse: collapse; min-width: 400px; }
+        th { text-align: left; background: #f8fafc; padding: 10px; font-size: 12px; color: #64748b; }
+        td { padding: 12px 10px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
         
         .negativo { color: var(--danger); font-weight: bold; }
         .positivo { color: var(--success); font-weight: bold; }
-        .btn-clear-minimal { background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 11px; text-decoration: underline; margin-top: 20px; width: 100%; }
+        
+        .fixo-item { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 10px 0; border-bottom: 1px dashed #eee; font-size: 0.9rem; 
+        }
+
+        .btn-del-small { 
+            background: #fee2e2; color: var(--danger); border: none; 
+            padding: 5px 10px; border-radius: 6px; font-size: 16px; 
+        }
+
+        .btn-clear-minimal { 
+            background: none; border: none; color: #94a3b8; 
+            cursor: pointer; font-size: 11px; text-decoration: underline; 
+            margin-top: 20px; width: 100%; 
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <header><h1>📊 Gestão Financeira Inteligente 2026</h1></header>
+    <h1>💰 Finanças 2026</h1>
 
     <div class="summary-grid">
         <div class="card">
-            <h3>Entradas (Mês)</h3>
+            <h3>Entradas</h3>
             <div class="value positivo" id="cardEntradas">R$ 0,00</div>
         </div>
         <div class="card">
-            <h3>Saídas Variáveis</h3>
+            <h3>Saídas</h3>
             <div class="value negativo" id="cardSaidas">R$ 0,00</div>
         </div>
-        <div class="card" style="border-top: 4px solid var(--fixo);">
-            <h3>Total Gastos Fixos</h3>
+        <div class="card" style="border-bottom: 3px solid var(--fixo);">
+            <h3>Fixos</h3>
             <div class="value" style="color: var(--fixo)" id="cardFixos">R$ 0,00</div>
         </div>
         <div class="card" style="background: #eff6ff;">
-            <h3>Sobra Prevista (Final do Mês)</h3>
+            <h3>Sobra</h3>
             <div class="value" id="cardSobra">R$ 0,00</div>
         </div>
     </div>
 
     <div class="main-layout">
         <div class="panel">
-            <h3>Novo Lançamento</h3>
+            <h3>Lançar</h3>
             <form id="formTransacao">
-                <input type="text" id="desc" placeholder="Ex: Mercado, Combustível" required>
+                <input type="text" id="desc" placeholder="Descrição" required>
                 <input type="number" id="valor" placeholder="Valor R$" step="0.01" required>
                 <select id="tipo">
                     <option value="saida">Saída (Variável)</option>
@@ -75,29 +126,30 @@
                 <input type="date" id="data" required>
                 <button type="submit" class="btn-add">Registrar</button>
             </form>
-            <button onclick="exportarExcel()" class="btn-excel">Exportar Excel</button>
+            <button onclick="exportarExcel()" class="btn-excel">Baixar Excel</button>
         </div>
 
         <div class="panel">
-            <h3>Histórico de Movimentações</h3>
-            <table>
-                <thead>
-                    <tr><th>Data</th><th>Descrição</th><th>Valor</th><th></th></tr>
-                </thead>
-                <tbody id="tabelaCorpo"></tbody>
-            </table>
+            <h3>Histórico</h3>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr><th>Data</th><th>Desc.</th><th>Valor</th><th></th></tr>
+                    </thead>
+                    <tbody id="tabelaCorpo"></tbody>
+                </table>
+            </div>
         </div>
 
         <div class="panel">
-            <h3>Gastos Fixos Mensais</h3>
-            <p style="font-size: 0.8rem; color: #64748b;">Itens que se repetem todo mês (Aluguel, Luz, etc.)</p>
+            <h3>Custos Fixos</h3>
             <form id="formFixo">
-                <input type="text" id="fixoDesc" placeholder="Descrição" required>
+                <input type="text" id="fixoDesc" placeholder="Ex: Aluguel" required>
                 <input type="number" id="fixoValor" placeholder="Valor R$" step="0.01" required>
-                <button type="submit" class="btn-fixo">Fixar Gasto</button>
+                <button type="submit" class="btn-fixo">Fixar Valor</button>
             </form>
-            <div id="listaFixos" style="margin-top: 15px;"></div>
-            <button onclick="limparTudo()" class="btn-clear-minimal">Resetar Todos os Dados</button>
+            <div id="listaFixos"></div>
+            <button onclick="limparTudo()" class="btn-clear-minimal">Resetar tudo</button>
         </div>
     </div>
 </div>
@@ -105,10 +157,8 @@
 <script>
     let transacoes = JSON.parse(localStorage.getItem('fin_trans_2026')) || [];
     let fixos = JSON.parse(localStorage.getItem('fin_fixos_2026')) || [];
-
     document.getElementById('data').valueAsDate = new Date();
 
-    // Evento Transação Variável
     document.getElementById('formTransacao').addEventListener('submit', function(e) {
         e.preventDefault();
         transacoes.push({
@@ -118,12 +168,11 @@
             tipo: document.getElementById('tipo').value,
             data: document.getElementById('data').value
         });
-        salvarERenderizar();
+        salvar();
         this.reset();
         document.getElementById('data').valueAsDate = new Date();
     });
 
-    // Evento Gasto Fixo
     document.getElementById('formFixo').addEventListener('submit', function(e) {
         e.preventDefault();
         fixos.push({
@@ -131,86 +180,63 @@
             desc: document.getElementById('fixoDesc').value,
             valor: parseFloat(document.getElementById('fixoValor').value)
         });
-        salvarERenderizar();
+        salvar();
         this.reset();
     });
 
-    function salvarERenderizar() {
+    function salvar() {
         localStorage.setItem('fin_trans_2026', JSON.stringify(transacoes));
         localStorage.setItem('fin_fixos_2026', JSON.stringify(fixos));
         renderizar();
     }
 
-    function excluirTransacao(id) {
-        transacoes = transacoes.filter(t => t.id !== id);
-        salvarERenderizar();
-    }
-
-    function excluirFixo(id) {
-        fixos = fixos.filter(f => f.id !== id);
-        salvarERenderizar();
-    }
-
-    function limparTudo() {
-        if(confirm("Apagar todos os dados registrados?")) {
-            transacoes = []; fixos = [];
-            salvarERenderizar();
-        }
-    }
+    function excluirTransacao(id) { if(confirm("Excluir?")) { transacoes = transacoes.filter(t => t.id !== id); salvar(); } }
+    function excluirFixo(id) { if(confirm("Excluir?")) { fixos = fixos.filter(f => f.id !== id); salvar(); } }
+    function limparTudo() { if(confirm("Limpar tudo?")) { transacoes = []; fixos = []; salvar(); } }
 
     function renderizar() {
-        // Renderizar Tabela
         const corpo = document.getElementById('tabelaCorpo');
         corpo.innerHTML = '';
-        let totalEntradas = 0;
-        let totalSaidasVar = 0;
+        let totalE = 0; let totalS = 0;
 
         transacoes.sort((a,b) => new Date(b.data) - new Date(a.data)).forEach(t => {
-            const classeV = t.tipo === 'entrada' ? 'positivo' : 'negativo';
-            if(t.tipo === 'entrada') totalEntradas += t.valor; else totalSaidasVar += t.valor;
-            
-            corpo.innerHTML += `
-                <tr>
-                    <td>${t.data.split('-').reverse().join('/')}</td>
-                    <td>${t.desc}</td>
-                    <td class="${classeV}">R$ ${t.valor.toLocaleString('pt-BR', {minimumFractionDigits:2})}</td>
-                    <td><button class="btn-del-small" onclick="excluirTransacao(${t.id})">&times;</button></td>
-                </tr>`;
+            const isE = t.tipo === 'entrada';
+            if(isE) totalE += t.valor; else totalS += t.valor;
+            corpo.innerHTML += `<tr>
+                <td>${t.data.split('-').slice(1).reverse().join('/')}</td>
+                <td>${t.desc}</td>
+                <td class="${isE?'positivo':'negativo'}">R$${t.valor.toFixed(2)}</td>
+                <td><button class="btn-del-small" onclick="excluirTransacao(${t.id})">&times;</button></td>
+            </tr>`;
         });
 
-        // Renderizar Gastos Fixos
         const listaF = document.getElementById('listaFixos');
         listaF.innerHTML = '';
-        let totalFixos = 0;
+        let totalF = 0;
         fixos.forEach(f => {
-            totalFixos += f.valor;
-            listaF.innerHTML += `
-                <div class="fixo-item">
-                    <span>${f.desc}</span>
-                    <span style="font-weight:bold">R$ ${f.valor.toLocaleString('pt-BR')} 
-                        <button class="btn-del-small" onclick="excluirFixo(${f.id})">&times;</button>
-                    </span>
-                </div>`;
+            totalF += f.valor;
+            listaF.innerHTML += `<div class="fixo-item">
+                <span>${f.desc}</span>
+                <span>R$${f.valor.toFixed(2)} <button class="btn-del-small" onclick="excluirFixo(${f.id})">&times;</button></span>
+            </div>`;
         });
 
-        // Atualizar Cards
-        const sobra = totalEntradas - totalSaidasVar - totalFixos;
-        document.getElementById('cardEntradas').innerText = `R$ ${totalEntradas.toLocaleString('pt-BR')}`;
-        document.getElementById('cardSaidas').innerText = `R$ ${totalSaidasVar.toLocaleString('pt-BR')}`;
-        document.getElementById('cardFixos').innerText = `R$ ${totalFixos.toLocaleString('pt-BR')}`;
+        const sobra = totalE - totalS - totalF;
+        document.getElementById('cardEntradas').innerText = `R$ ${totalE.toLocaleString('pt-BR')}`;
+        document.getElementById('cardSaidas').innerText = `R$ ${totalS.toLocaleString('pt-BR')}`;
+        document.getElementById('cardFixos').innerText = `R$ ${totalF.toLocaleString('pt-BR')}`;
         document.getElementById('cardSobra').innerText = `R$ ${sobra.toLocaleString('pt-BR')}`;
         document.getElementById('cardSobra').className = 'value ' + (sobra >= 0 ? 'positivo' : 'negativo');
     }
 
     function exportarExcel() {
-        const ws = XLSX.utils.json_to_sheet([...transacoes, ...fixos.map(f => ({...f, tipo: 'FIXO', data: 'Mensal'}))]);
+        const ws = XLSX.utils.json_to_sheet([...transacoes, ...fixos.map(f => ({...f, tipo: 'FIXO'}))]);
         const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Financeiro 2026");
-        XLSX.writeFile(wb, "Relatorio_Completo.xlsx");
+        XLSX.utils.book_append_sheet(wb, ws, "Financeiro");
+        XLSX.writeFile(wb, "Financeiro_2026.xlsx");
     }
 
     renderizar();
 </script>
-
 </body>
 </html>

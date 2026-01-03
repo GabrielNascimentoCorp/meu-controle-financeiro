@@ -26,7 +26,8 @@
         h3 { margin-top: 0; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; }
         input, select, button { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; }
         
-        #loading { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.8); z-index:2000; justify-content:center; align-items:center; font-weight:bold; color: var(--primary); }
+        /* TELA DE CARREGAMENTO */
+        #loading { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.9); z-index:2000; display: flex; justify-content:center; align-items:center; font-weight:bold; color: var(--primary); font-size: 1.2rem; }
 
         .btn-add { background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; }
         .btn-excel { background: var(--success); color: white; border: none; cursor: pointer; }
@@ -59,7 +60,7 @@
 </head>
 <body>
 
-<div id="loading">Conectando ao Firebase...</div>
+<div id="loading">Conectando ao Banco de Dados...</div>
 
 <header>
     <div class="header-content">
@@ -142,11 +143,16 @@
     const loading = document.getElementById('loading');
     document.getElementById('data').valueAsDate = new Date();
 
-    // 1. Ouvir Transações
+    // 1. Ouvir Transações (CORRIGIDO: Agora esconde a tela de carregamento)
     const qTrans = query(collection(db, "transacoes"), orderBy("data", "desc"));
     onSnapshot(qTrans, (snapshot) => {
         trans = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         render();
+        // Oculta a tela de carregamento assim que os dados chegam
+        loading.style.display = 'none';
+    }, (error) => {
+        console.error("Erro ao ler transações:", error);
+        loading.innerText = "Erro ao conectar. Veja o console.";
     });
 
     // 2. Ouvir Fixos
@@ -159,7 +165,6 @@
     // Adicionar Transação
     document.getElementById('formTrans').addEventListener('submit', async function(e) {
         e.preventDefault();
-        loading.style.display = 'flex';
         try {
             await addDoc(collection(db, "transacoes"), {
                 desc: document.getElementById('desc').value,
@@ -173,13 +178,11 @@
         } catch (error) {
             alert("Erro ao salvar: " + error.message);
         }
-        loading.style.display = 'none';
     });
 
     // Adicionar Fixo
     document.getElementById('formFixo').addEventListener('submit', async function(e) {
         e.preventDefault();
-        loading.style.display = 'flex';
         try {
             await addDoc(collection(db, "fixos"), {
                 desc: document.getElementById('fDesc').value,
@@ -189,7 +192,6 @@
         } catch (error) {
             alert("Erro ao salvar fixo: " + error.message);
         }
-        loading.style.display = 'none';
     });
 
     window.delT = async (id) => {

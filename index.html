@@ -3,15 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Finanças Enterprise</title>
+    <title>Finanças Pro</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#4f46e5">
-    
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2953/2953363.png">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2953/2953363.png">
     
-    <link rel="stylesheet" href="style.css?v=final">
+    <link rel="stylesheet" href="style.css?v=pro">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -19,39 +17,40 @@
 </head>
 <body>
 
+    <div id="toast-container"></div>
+
     <div id="loading-overlay">
         <div class="spinner"></div>
-        <p>Iniciando...</p>
+        <p style="margin-top:15px; color:#64748b; font-weight:500">Iniciando...</p>
     </div>
 
     <div id="auth-screen">
         <div class="card-auth">
-            <h2 style="color:var(--primary)">Finanças Pro</h2>
-            <p style="color:#666">Gestão Corporativa</p>
+            <h2 style="color:var(--primary); margin-bottom:5px">Finanças Pro</h2>
+            <p style="color:#94a3b8; margin-bottom:30px">Acesso Corporativo Seguro</p>
             
             <form id="form-login">
-                <input type="email" id="login-email" placeholder="E-mail" required>
+                <input type="email" id="login-email" placeholder="E-mail corporativo" required>
                 <input type="password" id="login-pass" placeholder="Senha" required>
-                <button type="submit" class="btn btn-primary">Entrar</button>
+                <button type="submit" class="btn btn-primary">Acessar Sistema</button>
             </form>
             
-            <button id="btn-show-register" class="btn-link">Criar Conta</button>
+            <button id="btn-show-register" class="btn-link">Criar nova conta</button>
             
             <form id="form-register" class="hidden">
-                <input type="text" id="reg-name" placeholder="Nome" required>
+                <input type="text" id="reg-name" placeholder="Nome Completo" required>
                 <input type="email" id="reg-email" placeholder="E-mail" required>
-                <input type="password" id="reg-pass" placeholder="Senha" required>
-                <button type="submit" class="btn btn-success">Cadastrar</button>
+                <input type="password" id="reg-pass" placeholder="Criar Senha" required>
+                <button type="submit" class="btn btn-primary" style="background:var(--secondary)">Registrar</button>
             </form>
-            <p id="auth-error" class="error-msg"></p>
+            <div id="auth-error" class="error-msg"></div>
         </div>
     </div>
 
     <div id="app-screen" class="hidden">
-        
         <header class="mobile-header">
-            <h3>Finanças Pro</h3>
-            <button id="btn-menu-toggle" style="background:none; border:none; font-size:1.8rem; padding: 10px;">☰</button>
+            <h3 style="margin:0; color:var(--primary)">Finanças Pro</h3>
+            <button id="btn-menu-toggle" style="background:none; border:none; font-size:1.6rem; color:var(--text); padding:5px">☰</button>
         </header>
 
         <div class="layout-container">
@@ -60,14 +59,14 @@
             <nav id="sidebar" class="sidebar">
                 <div class="logo">Finanças Pro</div>
                 <div class="menu">
-                    <button class="menu-item active" data-target="home">🏠 Início</button>
-                    <button class="menu-item" data-target="dash">📊 Relatórios</button>
-                    <button class="menu-item" data-target="notif">🔔 Notificações</button>
-                    <button class="menu-item admin-only hidden" data-target="admin" style="color:red">🔒 Admin</button>
+                    <button class="menu-item active" data-target="home">🏠 Visão Geral</button>
+                    <button class="menu-item" data-target="dash">📊 Inteligência</button>
+                    <button class="menu-item" data-target="notif">🔔 Alertas</button>
+                    <button class="menu-item admin-only hidden" data-target="admin" style="color:var(--danger)">🔒 Administração</button>
                 </div>
                 <div class="user-footer">
-                    <small id="user-display">...</small>
-                    <button id="btn-logout" class="btn btn-small">Sair</button>
+                    <div id="user-display" style="font-size:0.9rem; font-weight:600; color:var(--text); margin-bottom:10px">...</div>
+                    <button id="btn-logout" class="btn btn-small" style="background:#f1f5f9; color:#475569">Desconectar</button>
                 </div>
             </nav>
 
@@ -76,75 +75,81 @@
                 <section id="view-home" class="view active">
                     <h2>Visão Geral</h2>
                     <div class="kpi-grid">
-                        <div class="kpi purple"><small>SALDO</small><span id="val-saldo">...</span></div>
-                        <div class="kpi green"><small>ENTRADAS</small><span id="val-ent">...</span></div>
-                        <div class="kpi red"><small>SAÍDAS</small><span id="val-sai">...</span></div>
+                        <div class="kpi purple"><small>SALDO ATUAL</small><span id="val-saldo">R$ 0,00</span></div>
+                        <div class="kpi green"><small>RECEITAS (MÊS)</small><span id="val-ent">R$ 0,00</span></div>
+                        <div class="kpi red"><small>DESPESAS (MÊS)</small><span id="val-sai">R$ 0,00</span></div>
                     </div>
 
                     <div class="panel">
                         <h3>Novo Lançamento</h3>
                         <form id="form-trans">
-                            <input type="text" id="t-desc" placeholder="Descrição" required>
+                            <input type="text" id="t-desc" placeholder="Descrição (ex: Projeto Web)" required>
                             <div class="row">
-                                <input type="number" id="t-val" placeholder="Valor" step="0.01" required>
+                                <input type="number" id="t-val" placeholder="0,00" step="0.01" required>
                                 <input type="date" id="t-data" required>
                             </div>
                             <select id="t-tipo">
-                                <option value="saida">🔴 Saída</option>
-                                <option value="entrada">🟢 Entrada</option>
+                                <option value="saida">🔴 Saída (Pagamento)</option>
+                                <option value="entrada">🟢 Entrada (Recebimento)</option>
                             </select>
-                            <button type="submit" class="btn btn-primary">Salvar</button>
+                            <button type="submit" class="btn btn-primary">Registrar Transação</button>
                         </form>
                     </div>
 
                     <div class="panel">
-                        <h3>Gastos Fixos</h3>
+                        <h3>Custos Fixos Recorrentes</h3>
                         <form id="form-fixo" class="row">
-                            <input type="text" id="f-desc" placeholder="Nome" required>
+                            <input type="text" id="f-desc" placeholder="Nome (ex: Servidor)" required>
                             <input type="number" id="f-val" placeholder="Valor" step="0.01" required>
-                            <button type="submit" class="btn btn-small">+</button>
+                            <button type="submit" class="btn btn-small" style="background:var(--secondary); color:white; width:auto">Adicionar</button>
                         </form>
-                        <div id="list-fixos" style="margin-top:10px"></div>
+                        <div id="list-fixos" style="margin-top:15px"></div>
                     </div>
 
                     <div class="panel">
-                        <h3>Extrato</h3>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px">
+                            <h3>Extrato Recente</h3>
+                            <button onclick="window.exportExcel()" style="background:#f1f5f9; border:none; padding:8px 12px; border-radius:8px; color:#475569; font-weight:600; cursor:pointer; font-size:0.85rem">📥 Exportar Excel</button>
+                        </div>
                         <div id="list-trans"></div>
                     </div>
                 </section>
 
                 <section id="view-dash" class="view">
-                    <h2>Relatórios</h2>
+                    <h2>Inteligência de Dados</h2>
                     <div class="kpi-grid">
-                        <div class="panel center"><small>SAÚDE</small><h3 id="kpi-saude">--</h3></div>
-                        <div class="panel center"><small>POUPANÇA</small><h3 id="kpi-poupanca">--%</h3></div>
+                        <div class="panel center" style="margin:0"><small style="color:#64748b">SAÚDE FINANCEIRA</small><h3 id="kpi-saude" style="font-size:1.5rem; margin-top:5px">--</h3></div>
+                        <div class="panel center" style="margin:0"><small style="color:#64748b">TAXA DE POUPANÇA</small><h3 id="kpi-poupanca" style="font-size:1.5rem; margin-top:5px; color:var(--secondary)">--%</h3></div>
                     </div>
-                    <div class="panel"><canvas id="chart-bar" height="250"></canvas></div>
-                    <div class="panel"><canvas id="chart-pie" height="250"></canvas></div>
+                    <div class="panel"><h3>Fluxo de Caixa (6 Meses)</h3><div style="height:300px; position:relative"><canvas id="chart-bar"></canvas></div></div>
+                    <div class="panel"><h3>Distribuição</h3><div style="height:300px; position:relative"><canvas id="chart-pie"></canvas></div></div>
                 </section>
 
                 <section id="view-notif" class="view">
-                    <h2>Notificações</h2>
+                    <h2>Central de Alertas</h2>
                     <div class="panel">
                         <form id="form-notif" class="row">
-                            <input type="text" id="n-desc" placeholder="Conta" required>
-                            <select id="n-dia" required><option value="">Dia...</option></select>
-                            <button type="submit" class="btn btn-primary">Criar</button>
+                            <input type="text" id="n-desc" placeholder="Conta (ex: Aluguel)" required>
+                            <select id="n-dia" required style="width:180px"><option value="">Vencimento...</option></select>
+                            <button type="submit" class="btn btn-primary">Agendar Alerta</button>
                         </form>
                     </div>
                     <div id="list-notif"></div>
-                    <button id="btn-test-notif" class="btn" style="margin-top:20px; background:#eee; color:#333">Testar no Celular</button>
+                    <button id="btn-test-notif" class="btn" style="margin-top:20px; background:#e2e8f0; color:#475569">🔔 Testar Notificação Push</button>
                 </section>
 
                 <section id="view-admin" class="view">
-                    <h2>Administração</h2>
-                    <div class="panel border-red">
-                        <h3>Usuários</h3>
+                    <h2>Painel Administrativo</h2>
+                    <div class="panel" style="border-left:4px solid var(--danger)">
+                        <p style="margin:0; color:#64748b; font-size:0.9rem">Área restrita para gestão de usuários e auditoria.</p>
+                    </div>
+                    <div class="panel">
+                        <h3>Usuários do Sistema</h3>
                         <div id="list-users">Carregando...</div>
                     </div>
                     <div class="panel">
                         <h3>Logs de Auditoria</h3>
-                        <div id="list-logs" style="max-height:300px; overflow:auto">Carregando...</div>
+                        <div id="list-logs" style="max-height:400px; overflow-y:auto">Carregando...</div>
                     </div>
                 </section>
 
@@ -152,6 +157,6 @@
         </div>
     </div>
 
-    <script type="module" src="app.js?v=final"></script>
+    <script type="module" src="app.js?v=pro"></script>
 </body>
 </html>

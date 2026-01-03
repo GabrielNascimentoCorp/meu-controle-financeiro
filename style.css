@@ -8,23 +8,24 @@
 
 * { box-sizing: border-box; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
 
-/* --- 1. ESTRUTURA BASE (TRAVA A JANELA) --- */
+/* 1. TRAVAMENTO DA TELA (CRUCIAL PARA CELULAR) */
 html, body {
     margin: 0;
     padding: 0;
     width: 100%;
-    height: 100%; /* Garante altura total */
+    height: 100dvh; /* Usa DVH (Dynamic Viewport Height) para ignorar barra do navegador */
     background: var(--bg);
     color: var(--text);
-    overflow: hidden; /* OBRIGATÓRIO: Impede a página inteira de rolar */
+    overflow: hidden; /* Impede a tela inteira de pular */
 }
 
-/* --- 2. CONTAINER PRINCIPAL (FLEXBOX VERTICAL) --- */
+/* 2. ESTRUTURA VERTICAL DO APP */
 #app-screen {
     display: flex;
     flex-direction: column;
-    height: 100%; /* Ocupa 100% da tela */
+    height: 100%;
     width: 100%;
+    overflow: hidden;
 }
 
 .mobile-header { 
@@ -34,17 +35,17 @@ html, body {
     align-items: center; 
     justify-content: space-between; 
     border-bottom: 1px solid #eee;
-    flex-shrink: 0; /* Impede que o cabeçalho seja esmagado */
+    flex-shrink: 0; /* Garante que o topo nunca seja esmagado */
     z-index: 2000;
 }
 
-/* --- 3. ÁREA DO LAYOUT (SIDEBAR + CONTEÚDO) --- */
+/* 3. CONTAINER DO MEIO (A CORREÇÃO ESTÁ AQUI) */
 .layout-container {
     display: flex;
-    flex: 1; /* Ocupa todo o espaço restante abaixo do cabeçalho */
-    overflow: hidden; /* Segura a rolagem dentro dele */
+    flex: 1; /* Ocupa todo o espaço que sobra */
+    overflow: hidden; /* Segura o conteúdo dentro */
     position: relative;
-    height: 100%; /* Reforço de altura */
+    min-height: 0; /* OBRIGATÓRIO: Permite que o flexbox calcule a rolagem interna */
 }
 
 /* SIDEBAR */
@@ -58,20 +59,20 @@ html, body {
     flex-shrink: 0; 
     transition: transform 0.3s ease; 
     z-index: 1000;
-    overflow-y: auto; /* Se o menu for muito grande, ele rola */
+    overflow-y: auto; 
 }
 
-/* --- 4. CONTEÚDO (AQUI ACONTECE A ROLAGEM) --- */
+/* 4. ÁREA DE CONTEÚDO (AQUI É A ROLAGEM) */
 .content { 
-    flex: 1; /* Ocupa a largura restante */
-    height: 100%; /* Ocupa a altura total do pai */
-    overflow-y: auto; /* HABILITA A ROLAGEM AQUI */
+    flex: 1; 
+    height: 100%; 
+    overflow-y: auto; /* Ativa a rolagem vertical */
     padding: 20px; 
-    -webkit-overflow-scrolling: touch; /* Rolagem suave no iPhone */
-    padding-bottom: 100px; /* Espaço extra no final para não cortar conteúdo no celular */
+    -webkit-overflow-scrolling: touch; /* Rolagem macia no iPhone */
+    padding-bottom: 120px; /* Espaço extra generoso no final para celular */
 }
 
-/* --- 5. CORREÇÃO DAS ABAS (VISIBILIDADE) --- */
+/* 5. VISIBILIDADE DAS ABAS */
 .view { 
     display: none; 
     opacity: 0;
@@ -86,7 +87,7 @@ html, body {
 
 @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-/* UTILITÁRIOS GERAIS */
+/* UTILITÁRIOS */
 .hidden { display: none !important; }
 .logo { font-size: 1.2rem; font-weight: 700; color: var(--primary); margin-bottom: 30px; display: flex; align-items: center; gap: 10px; }
 
@@ -101,7 +102,7 @@ html, body {
 
 .user-footer { margin-top: auto; padding-top: 20px; border-top: 1px solid #eee; }
 
-/* COMPONENTES VISUAIS (CARDS, ETC) */
+/* COMPONENTES */
 .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px; }
 .kpi { padding: 20px; border-radius: 16px; color: white; display: flex; flex-direction: column; position: relative; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
 .kpi.purple { background: linear-gradient(135deg, #4f46e5, #6366f1); }
@@ -125,7 +126,7 @@ input:focus { border-color: var(--primary); background: white; }
 .list-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #f1f5f9; }
 .admin-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; }
 
-/* LOADING / LOGIN */
+/* LOADING/LOGIN */
 #loading-overlay { position: fixed; inset: 0; background: white; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 .spinner { width: 40px; height: 40px; border: 4px solid #eee; border-top-color: var(--primary); border-radius: 50%; animation: spin 1s infinite linear; }
 @keyframes spin { to {transform: rotate(360deg);} }
@@ -134,12 +135,16 @@ input:focus { border-color: var(--primary); background: white; }
 .card-auth { background: white; padding: 40px; border-radius: 24px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
 .error-msg { color: var(--danger); margin-top: 10px; font-size: 0.9rem; }
 
-/* RESPONSIVO */
+/* RESPONSIVO MOBILE */
 @media (max-width: 768px) {
     .sidebar { position: fixed; top: 0; left: -100%; height: 100%; box-shadow: 5px 0 20px rgba(0,0,0,0.1); }
     .sidebar.open { left: 0; }
-    .mobile-header { display: flex; } /* Mostra o header no celular */
+    .mobile-header { display: flex; }
     
+    /* Overlay do Menu */
     #sidebar-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:900; display:none; }
     #sidebar-overlay.visible { display: block; }
+    
+    /* Ajuste fino para inputs não darem zoom no iOS */
+    input, select { font-size: 16px; }
 }

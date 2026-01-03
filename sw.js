@@ -1,4 +1,4 @@
-const CACHE_NAME = 'financas-v5'; // <-- MUDOU A VERSÃO
+const CACHE_NAME = 'financas-v6'; // <-- MUDOU A VERSÃO
 
 const urlsToCache = [
   './',

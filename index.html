@@ -2,90 +2,160 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Finanças Pro Mobile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Finanças Pro</title>
     
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#2563eb">
+    <meta name="theme-color" content="#4f46e5">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Finanças Pro">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2953/2953363.png">
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2953/2953363.png">
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
-        :root { --primary: #2563eb; --success: #10b981; --danger: #ef4444; --bg: #f8fafc; --fixo: #7c3aed; --dark: #0f172a; --card-bg: #ffffff; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-        body { background: var(--bg); margin: 0; padding: 0; color: var(--dark); padding-bottom: 90px; }
+        :root {
+            --primary: #4f46e5; /* Indigo */
+            --primary-dark: #4338ca;
+            --secondary: #8b5cf6; /* Violeta */
+            --success: #10b981;
+            --success-bg: #d1fae5;
+            --danger: #ef4444;
+            --danger-bg: #fee2e2;
+            --bg: #f3f4f6;
+            --surface: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
+            --radius: 20px;
+        }
 
-        /* HEADER */
-        header { background: var(--card-bg); padding: 15px 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 50; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Poppins', sans-serif; }
+        body { background: var(--bg); margin: 0; padding: 0; color: var(--text-main); padding-bottom: 100px; padding-top: env(safe-area-inset-top); }
+
+        /* HEADER MODERNO */
+        header { 
+            background: var(--surface); 
+            padding: 15px 20px; 
+            position: sticky; top: 0; z-index: 50;
+            border-bottom-left-radius: 25px;
+            border-bottom-right-radius: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+        }
         .header-content { display: flex; align-items: center; justify-content: space-between; max-width: 1200px; margin: 0 auto; }
-        h1 { margin: 0; font-size: 1.1rem; font-weight: 700; color: var(--dark); display: flex; align-items: center; gap: 8px; }
+        .logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.2rem; color: var(--primary); }
+        .logo-icon { background: linear-gradient(135deg, var(--primary), var(--secondary)); padding: 8px; border-radius: 12px; color: white; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3); }
 
         /* LOADING */
-        #loading { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.98); z-index:2000; display: flex; flex-direction: column; justify-content:center; align-items:center; transition: opacity 0.5s; }
+        #loading { position:fixed; top:0; left:0; width:100%; height:100%; background: var(--surface); z-index:2000; display: flex; flex-direction: column; justify-content:center; align-items:center; transition: opacity 0.5s; }
+        .spinner { width: 50px; height: 50px; border: 5px solid var(--bg); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* LAYOUT */
-        .container { max-width: 1200px; margin: 0 auto; padding: 15px; }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
         .hidden { display: none !important; }
+
+        /* CARDS DE RESUMO (GRADIENTES) */
+        .summary-scroll { display: flex; gap: 15px; overflow-x: auto; padding: 10px 5px 20px 5px; scrollbar-width: none; }
+        .mini-card { 
+            min-width: 150px; flex: 1; padding: 20px; border-radius: 24px; color: white;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1); position: relative; overflow: hidden;
+            display: flex; flex-direction: column; justify-content: space-between; height: 110px;
+        }
         
-        /* CARDS E LISTAS */
-        .summary-scroll { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 20px; scrollbar-width: none; }
-        .mini-card { min-width: 140px; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #f1f5f9; }
-        .mini-card small { font-size: 0.7rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-        .mini-card .val { font-size: 1.2rem; font-weight: 800; margin-top: 5px; white-space: nowrap; }
+        /* Estilos específicos dos cards */
+        .card-saldo { background: linear-gradient(135deg, #4f46e5, #8b5cf6); }
+        .card-ent { background: linear-gradient(135deg, #10b981, #34d399); }
+        .card-sai { background: linear-gradient(135deg, #ef4444, #f87171); }
+        
+        /* Bolhas de fundo decorativas */
+        .mini-card::before { content:''; position: absolute; width: 80px; height: 80px; background: rgba(255,255,255,0.1); border-radius: 50%; top: -20px; right: -20px; }
+        .mini-card::after { content:''; position: absolute; width: 60px; height: 60px; background: rgba(255,255,255,0.1); border-radius: 50%; bottom: -10px; left: -10px; }
 
-        .panel { background: white; padding: 20px; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        h3.title { margin: 0 0 15px 0; font-size: 1rem; color: #334155; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; }
+        .mini-card small { font-size: 0.75rem; opacity: 0.9; font-weight: 500; z-index: 2; }
+        .mini-card .val { font-size: 1.4rem; font-weight: 700; z-index: 2; margin-top: auto; }
 
-        /* FORMULÁRIOS */
-        input, select, button { width: 100%; padding: 14px; margin-bottom: 10px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 16px; outline: none; -webkit-appearance: none; }
-        input:focus, select:focus { border-color: var(--primary); }
-        .btn-primary { background: var(--primary); color: white; border: none; font-weight: 600; cursor: pointer; box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2); }
-        .btn-primary:active { transform: scale(0.98); }
-        .row-inputs { display: flex; gap: 10px; }
-        .row-inputs input[type="date"] { width: 40%; }
-        .row-inputs input[type="number"] { width: 60%; }
+        /* PAINÉIS E FORMULÁRIOS */
+        .panel { background: var(--surface); padding: 25px; border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 25px; border: 1px solid rgba(0,0,0,0.02); }
+        h3.title { margin: 0 0 20px 0; font-size: 1.1rem; color: var(--text-main); font-weight: 700; display: flex; align-items: center; gap: 8px; }
 
-        /* LISTA DE ITENS */
-        .trans-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f1f5f9; }
-        .trans-info div:first-child { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
-        .trans-info div:last-child { font-size: 0.75rem; color: #94a3b8; margin-top: 2px; }
-        .trans-val { font-weight: 700; font-size: 0.95rem; text-align: right; }
-        .btn-del { font-size: 0.7rem; color: #cbd5e1; display: block; margin-top: 2px; cursor: pointer; }
+        input, select { 
+            width: 100%; padding: 16px; margin-bottom: 12px; 
+            background: var(--bg); border: 2px solid transparent; 
+            border-radius: 16px; font-size: 0.95rem; color: var(--text-main); font-weight: 500;
+            transition: all 0.3s ease; outline: none; -webkit-appearance: none;
+        }
+        input:focus, select:focus { background: var(--surface); border-color: var(--primary); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.1); }
+        
+        .btn-primary { 
+            width: 100%; padding: 16px; border: none; border-radius: 16px;
+            background: var(--primary); color: white; font-weight: 600; font-size: 1rem;
+            cursor: pointer; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+            transition: transform 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px;
+        }
+        .btn-primary:active { transform: scale(0.97); }
 
-        /* DASHBOARD MOBILE */
-        .dash-kpi-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-bottom: 25px; }
-        .kpi-box { background: white; padding: 20px; border-radius: 14px; border-left: 5px solid #ccc; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
-        .kpi-box.good { border-left-color: var(--success); }
-        .kpi-box.bad { border-left-color: var(--danger); }
-        .kpi-label { font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; }
-        .kpi-number { font-size: 1.8rem; font-weight: 800; margin: 5px 0; color: #0f172a; }
-        .kpi-desc { font-size: 0.85rem; color: #64748b; }
-        .chart-wrapper { background: white; padding: 15px; border-radius: 16px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
-        .chart-box { position: relative; height: 260px; width: 100%; }
+        .row-inputs { display: flex; gap: 12px; }
 
-        /* MENU INFERIOR */
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-around; padding: 12px 0; z-index: 100; box-shadow: 0 -2px 10px rgba(0,0,0,0.03); }
-        .nav-item { border: none; background: none; color: #94a3b8; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 0.7rem; width: 100%; }
-        .nav-item span { font-size: 1.4rem; }
-        .nav-item.active { color: var(--primary); font-weight: 700; }
+        /* LISTA DE TRANSAÇÕES (ESTILO CARD) */
+        .trans-item { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 16px; margin-bottom: 12px; background: var(--bg); 
+            border-radius: 18px; transition: transform 0.2s;
+        }
+        .trans-item:active { transform: scale(0.98); background: #e5e7eb; }
+        
+        .icon-box { 
+            width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; 
+            font-size: 1.2rem; margin-right: 15px; flex-shrink: 0;
+        }
+        .icon-in { background: var(--success-bg); color: var(--success); }
+        .icon-out { background: var(--danger-bg); color: var(--danger); }
 
-        .desktop-menu { display: none; gap: 15px; }
-        .d-btn { background: #f1f5f9; padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; color: #475569; }
-        .d-btn.active { background: var(--primary); color: white; }
+        .trans-info { flex: 1; }
+        .trans-desc { font-weight: 600; color: var(--text-main); font-size: 0.95rem; }
+        .trans-date { font-size: 0.75rem; color: var(--text-muted); margin-top: 3px; }
+        .trans-val { font-weight: 700; font-size: 1rem; }
+        
+        .btn-del { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; color: #9ca3af; background: none; border: none; font-size: 1.2rem; margin-left: 10px; }
+
+        /* MENU INFERIOR (GLASSMORPHISM) */
+        .bottom-nav { 
+            position: fixed; bottom: 20px; left: 20px; right: 20px; 
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border-radius: 25px; padding: 12px 20px; display: flex; justify-content: space-around; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.5); z-index: 100; max-width: 600px; margin: 0 auto;
+        }
+        .nav-item { border: none; background: none; color: #94a3b8; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 0.7rem; font-weight: 600; transition: all 0.3s; }
+        .nav-item svg { width: 24px; height: 24px; stroke-width: 2.5; transition: all 0.3s; }
+        .nav-item.active { color: var(--primary); }
+        .nav-item.active svg { transform: translateY(-3px); stroke: var(--primary); }
+
+        /* DASHBOARD */
+        .kpi-grid { display: grid; gap: 15px; margin-bottom: 25px; }
+        .kpi-row { background: var(--surface); padding: 20px; border-radius: 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: var(--shadow); }
+        .kpi-label { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; }
+        .kpi-val { font-size: 1.2rem; font-weight: 700; color: var(--text-main); }
+        .chart-box { background: var(--surface); padding: 20px; border-radius: 24px; box-shadow: var(--shadow); margin-bottom: 20px; height: 300px; position: relative; }
+
+        /* DESKTOP NAV */
+        .desktop-menu { display: none; gap: 10px; }
+        .d-btn { background: transparent; padding: 10px 20px; border-radius: 12px; border: none; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: all 0.2s; }
+        .d-btn:hover { background: var(--bg); }
+        .d-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
 
         @media (min-width: 768px) {
-            .dash-kpi-grid { grid-template-columns: repeat(3, 1fr); }
             .bottom-nav { display: none; }
             .desktop-menu { display: flex; }
-            .main-layout { display: grid; grid-template-columns: 350px 1fr; gap: 20px; align-items: start; }
-            .container { max-width: 1200px; padding: 20px; }
+            .container { max-width: 1000px; padding: 40px 20px; }
+            .main-layout { display: grid; grid-template-columns: 350px 1fr; gap: 30px; align-items: start; }
+            .kpi-grid { grid-template-columns: repeat(3, 1fr); }
         }
+
         .text-success { color: var(--success); }
         .text-danger { color: var(--danger); }
     </style>
@@ -94,112 +164,132 @@
 
 <script>
   if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js')
-        .then(reg => console.log('App pronto para instalar:', reg.scope))
-        .catch(err => console.log('Erro PWA:', err));
-    });
+    window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
   }
 </script>
 
 <div id="loading">
-    <div style="font-size:2.5rem; animation: spin 1s infinite linear">⏳</div>
-    <div style="margin-top:15px; font-weight:600; color:#475569">Carregando Finanças...</div>
+    <div class="spinner"></div>
+    <div style="margin-top:20px; font-weight:600; color:#4f46e5; font-size: 0.9rem; letter-spacing: 1px;">CARREGANDO...</div>
 </div>
-<style>@keyframes spin { 100% { transform: rotate(360deg); } }</style>
 
 <header>
     <div class="header-content">
-        <h1>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+        <div class="logo">
+            <div class="logo-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
             Finanças Pro
-        </h1>
+        </div>
         <nav class="desktop-menu">
-            <button class="d-btn active" onclick="go('home', this)">Lançamentos</button>
-            <button class="d-btn" onclick="go('dash', this)">Dashboard</button>
+            <button class="d-btn active" onclick="go('home', this)">Início</button>
+            <button class="d-btn" onclick="go('dash', this)">Relatórios</button>
         </nav>
     </div>
 </header>
 
 <div class="container">
+
     <div id="view-home">
         <div class="summary-scroll">
-            <div class="mini-card"><small>Saldo Atual</small><div class="val" id="resSaldo">...</div></div>
-            <div class="mini-card"><small>Entradas (Mês)</small><div class="val text-success" id="resEntradas">...</div></div>
-            <div class="mini-card"><small>Saídas (Mês)</small><div class="val text-danger" id="resSaidas">...</div></div>
+            <div class="mini-card card-saldo">
+                <small>SALDO ATUAL</small>
+                <div class="val" id="resSaldo">...</div>
+            </div>
+            <div class="mini-card card-ent">
+                <small>ENTRADAS</small>
+                <div class="val" id="resEntradas">...</div>
+            </div>
+            <div class="mini-card card-sai">
+                <small>SAÍDAS</small>
+                <div class="val" id="resSaidas">...</div>
+            </div>
         </div>
 
         <div class="main-layout">
             <div>
                 <div class="panel">
-                    <h3 class="title">Novo Lançamento</h3>
+                    <h3 class="title">✨ Novo Lançamento</h3>
                     <form id="formTrans">
-                        <input type="text" id="desc" placeholder="Descrição (ex: Padaria)" required>
+                        <input type="text" id="desc" placeholder="O que foi?" required>
                         <div class="row-inputs">
                             <input type="number" id="valor" placeholder="R$ 0,00" step="0.01" required>
                             <input type="date" id="data" required>
                         </div>
                         <select id="tipo">
-                            <option value="saida">🔴 Saída (Gasto)</option>
-                            <option value="entrada">🟢 Entrada (Ganho)</option>
+                            <option value="saida">🔴 Gasto (Saída)</option>
+                            <option value="entrada">🟢 Ganho (Entrada)</option>
                         </select>
-                        <button type="submit" class="btn-primary">Salvar Lançamento</button>
+                        <button type="submit" class="btn-primary">Adicionar</button>
                     </form>
                 </div>
 
                 <div class="panel">
-                    <h3 class="title">Gastos Fixos (Mensal)</h3>
+                    <h3 class="title">📅 Fixos Mensais</h3>
                     <form id="formFixo">
-                        <input type="text" id="fDesc" placeholder="Ex: Internet" required>
-                        <input type="number" id="fValor" placeholder="R$ 0,00" step="0.01" required>
-                        <button type="submit" class="btn-primary" style="background:var(--fixo)">Fixar Valor</button>
+                        <div class="row-inputs">
+                            <input type="text" id="fDesc" placeholder="Ex: Netflix" required>
+                            <input type="number" id="fValor" placeholder="Valor" step="0.01" required>
+                        </div>
+                        <button type="submit" class="btn-primary" style="background: var(--secondary)">Fixar</button>
                     </form>
-                    <div id="listaFixos" style="margin-top:15px"></div>
+                    <div id="listaFixos" style="margin-top:20px"></div>
                 </div>
             </div>
 
             <div class="panel">
-                <h3 class="title">Histórico Recente</h3>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px">
+                    <h3 class="title" style="margin:0">Movimentações</h3>
+                    <button onclick="exportarExcel()" style="background:var(--bg); color:var(--text-main); border:none; padding:8px 12px; border-radius:10px; font-size:0.8rem; font-weight:600">📥 Excel</button>
+                </div>
                 <div id="listaTrans">Carregando...</div>
-                <button onclick="exportarExcel()" style="background:#f1f5f9; color:#475569; border:none; margin-top:15px; font-size:0.8rem; padding:10px">📥 Baixar Excel Completo</button>
             </div>
         </div>
     </div>
 
     <div id="view-dash" class="hidden">
-        <h2 style="margin: 0 0 20px 0; font-size:1.2rem; color:#334155">Análise Financeira</h2>
-        <div class="dash-kpi-grid">
-            <div class="kpi-box" id="cardSaude">
-                <div class="kpi-label">Saúde Financeira</div>
-                <div class="kpi-number" id="kpiSaudeVal">--</div>
-                <div class="kpi-desc" id="kpiSaudeMsg">Analisando...</div>
+        <h2 style="margin:0 0 25px 0; font-size:1.5rem;">Panorama Financeiro</h2>
+        
+        <div class="kpi-grid">
+            <div class="kpi-row">
+                <div><div class="kpi-label">SAÚDE</div><div class="kpi-val" id="kpiSaudeVal">--</div></div>
+                <div id="kpiIcon" style="font-size:1.5rem">⚖️</div>
             </div>
-            <div class="kpi-box good">
-                <div class="kpi-label">Economia (Mês)</div>
-                <div class="kpi-number" id="kpiEconVal">0%</div>
-                <div class="kpi-desc">da renda foi guardada</div>
+            <div class="kpi-row">
+                <div><div class="kpi-label">POUPANÇA</div><div class="kpi-val text-success" id="kpiEconVal">0%</div></div>
+                <div style="font-size:1.5rem">📈</div>
             </div>
-            <div class="kpi-box bad">
-                <div class="kpi-label">Maior Gasto (Mês)</div>
-                <div class="kpi-number text-danger" id="kpiMaiorVal">R$ 0</div>
-                <div class="kpi-desc" id="kpiMaiorDesc">--</div>
+            <div class="kpi-row">
+                <div><div class="kpi-label">MAIOR GASTO</div><div class="kpi-val text-danger" id="kpiMaiorVal">R$ 0</div></div>
+                <div style="font-size:1.5rem">🔥</div>
             </div>
         </div>
-        <div class="chart-wrapper"><h3 class="title">Evolução Mensal</h3><div class="chart-box"><canvas id="chartEvo"></canvas></div></div>
-        <div class="chart-wrapper"><h3 class="title">Destino do Dinheiro</h3><div class="chart-box"><canvas id="chartDist"></canvas></div></div>
+
+        <div class="chart-box">
+            <canvas id="chartEvo"></canvas>
+        </div>
+        <div class="chart-box">
+            <canvas id="chartDist"></canvas>
+        </div>
     </div>
 </div>
 
 <nav class="bottom-nav">
-    <button class="nav-item active" onclick="go('home', this)"><span>📝</span>Lançar</button>
-    <button class="nav-item" onclick="go('dash', this)"><span>📊</span>Dashboard</button>
+    <button class="nav-item active" onclick="go('home', this)">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        Início
+    </button>
+    <button class="nav-item" onclick="go('dash', this)">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+        Relatórios
+    </button>
 </nav>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
     import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
-    // --- FIREBASE CONFIG ---
+    // --- COLE AQUI SUA CONFIG DO FIREBASE ---
     const firebaseConfig = {
         apiKey: "AIzaSyC2NH5D5-dBk057use7wRQtF25vcBDw7Lo",
         authDomain: "financas-2abdf.firebaseapp.com",
@@ -242,22 +332,33 @@
         
         fixos.forEach(x => {
             f += x.valor;
-            listF.innerHTML += `<div class="trans-item"><span>${x.desc}</span><span style="font-weight:bold">${fmt(x.valor)} <span onclick="delF('${x.id}')" style="color:#ccc;cursor:pointer">✕</span></span></div>`;
+            listF.innerHTML += `<div class="trans-item">
+                <div style="display:flex; align-items:center"><div class="icon-box icon-out">🔒</div><span>${x.desc}</span></div>
+                <div style="display:flex;align-items:center"><span style="font-weight:700">${fmt(x.valor)}</span><button class="btn-del" onclick="delF('${x.id}')">×</button></div>
+            </div>`;
         });
 
-        trans.slice(0, 30).forEach(t => {
+        trans.slice(0, 50).forEach(t => {
             if(t.tipo === 'entrada') e += t.valor; else s += t.valor;
             const isEnt = t.tipo === 'entrada';
             listT.innerHTML += `
             <div class="trans-item">
-                <div class="trans-info"><div>${t.desc}</div><div>${t.data.split('-').reverse().join('/')}</div></div>
-                <div><div class="trans-val ${isEnt?'text-success':'text-danger'}">${isEnt?'+':'-'} ${fmt(t.valor)}</div><span class="btn-del" onclick="delT('${t.id}')">Excluir</span></div>
+                <div style="display:flex; align-items:center; overflow:hidden">
+                    <div class="icon-box ${isEnt?'icon-in':'icon-out'}">${isEnt?'↓':'↑'}</div>
+                    <div class="trans-info">
+                        <div class="trans-desc">${t.desc}</div>
+                        <div class="trans-date">${t.data.split('-').reverse().join('/')}</div>
+                    </div>
+                </div>
+                <div style="display:flex; align-items:center">
+                    <div class="trans-val ${isEnt?'text-success':'text-danger'}">${isEnt?'+':'-'} ${fmt(t.valor)}</div>
+                    <button class="btn-del" onclick="delT('${t.id}')"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+                </div>
             </div>`;
         });
 
         const saldo = e - s - f;
         document.getElementById('resSaldo').innerText = fmt(saldo);
-        document.getElementById('resSaldo').style.color = saldo >= 0 ? 'var(--success)' : 'var(--danger)';
         document.getElementById('resEntradas').innerText = fmt(e);
         document.getElementById('resSaidas').innerText = fmt(s + f);
     }
@@ -283,23 +384,22 @@
         
         document.getElementById('kpiEconVal').innerText = Math.max(0, econ).toFixed(0) + '%';
         document.getElementById('kpiMaiorVal').innerText = fmt(maior.v);
-        document.getElementById('kpiMaiorDesc').innerText = maior.d;
-
-        const cardS = document.getElementById('cardSaude'), txtS = document.getElementById('kpiSaudeVal'), msgS = document.getElementById('kpiSaudeMsg');
-        if(ratio > 100) { cardS.className='kpi-box bad'; txtS.innerText='Crítica'; msgS.innerText='Gastos > Ganhos!'; }
-        else if(ratio > 70) { cardS.className='kpi-box'; cardS.style.borderLeftColor='#f59e0b'; txtS.innerText='Alerta'; msgS.innerText='Gasto elevado'; }
-        else { cardS.className='kpi-box good'; txtS.innerText='Ótima'; msgS.innerText='Finanças saudáveis'; }
+        
+        const txtS = document.getElementById('kpiSaudeVal');
+        if(ratio > 100) { txtS.innerText='Crítica'; txtS.className='kpi-val text-danger'; }
+        else if(ratio > 70) { txtS.innerText='Atenção'; txtS.className='kpi-val'; txtS.style.color='#f59e0b'; }
+        else { txtS.innerText='Excelente'; txtS.className='kpi-val text-success'; }
 
         const labels = Object.keys(map).map(k => {const p=k.split('-'); return `${p[1]}/${p[0].slice(2)}`});
         const dataE = Object.values(map).map(v => v.e), dataS = Object.values(map).map(v => v.s);
 
         const ctx1 = document.getElementById('chartEvo').getContext('2d');
         if(chart1) chart1.destroy();
-        chart1 = new Chart(ctx1, { type: 'bar', data: { labels, datasets: [{label:'Entrou', data:dataE, backgroundColor:'#10b981', borderRadius:4}, {label:'Saiu', data:dataS, backgroundColor:'#ef4444', borderRadius:4}] }, options: { responsive:true, maintainAspectRatio:false, scales:{x:{grid:{display:false}}, y:{beginAtZero:true}} } });
+        chart1 = new Chart(ctx1, { type: 'bar', data: { labels, datasets: [{label:'Ganho', data:dataE, backgroundColor:'#10b981', borderRadius:6}, {label:'Gasto', data:dataS, backgroundColor:'#ef4444', borderRadius:6}] }, options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom'}}, scales:{x:{grid:{display:false}}, y:{beginAtZero:true, grid:{color:'#f3f4f6'}}} } });
 
         const ctx2 = document.getElementById('chartDist').getContext('2d');
         if(chart2) chart2.destroy();
-        chart2 = new Chart(ctx2, { type: 'doughnut', data: { labels: ['Ganho Total', 'Gasto Total'], datasets: [{data:[totalE, totalS], backgroundColor:['#10b981','#ef4444'], borderWidth:0}] }, options: { responsive:true, maintainAspectRatio:false, cutout:'70%' } });
+        chart2 = new Chart(ctx2, { type: 'doughnut', data: { labels: ['Ganho', 'Gasto'], datasets: [{data:[totalE, totalS], backgroundColor:['#10b981','#ef4444'], borderWidth:0}] }, options: { responsive:true, maintainAspectRatio:false, cutout:'75%', plugins:{legend:{position:'bottom'}} } });
     }
 
     window.go = (screen, btn) => {
@@ -313,7 +413,7 @@
 
     document.getElementById('formTrans').addEventListener('submit', async (e) => {
         e.preventDefault();
-        try { await addDoc(collection(db,"transacoes"), { desc: document.getElementById('desc').value, valor: parseFloat(document.getElementById('valor').value), tipo: document.getElementById('tipo').value, data: document.getElementById('data').value, createdAt: Date.now() }); e.target.reset(); document.getElementById('data').valueAsDate = new Date(); alert("Salvo!"); } catch(err) { alert(err.message); }
+        try { await addDoc(collection(db,"transacoes"), { desc: document.getElementById('desc').value, valor: parseFloat(document.getElementById('valor').value), tipo: document.getElementById('tipo').value, data: document.getElementById('data').value, createdAt: Date.now() }); e.target.reset(); document.getElementById('data').valueAsDate = new Date(); } catch(err) { alert(err.message); }
     });
 
     document.getElementById('formFixo').addEventListener('submit', async (e) => {
@@ -326,7 +426,7 @@
     
     window.exportarExcel = () => {
         const ws = XLSX.utils.json_to_sheet([...trans, ...fixos.map(x=>({...x, tipo:'FIXO'}))]);
-        const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Financas"); XLSX.writeFile(wb, "Financas_Mobile.xlsx");
+        const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Financas"); XLSX.writeFile(wb, "Financas_Pro.xlsx");
     }
 </script>
 </body>

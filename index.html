@@ -13,283 +13,197 @@
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2953/2953363.png">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         :root {
-            --primary: #4f46e5; /* Indigo */
-            --primary-dark: #4338ca;
-            --secondary: #8b5cf6; /* Violeta */
-            --success: #10b981;
-            --success-bg: #d1fae5;
-            --danger: #ef4444;
-            --danger-bg: #fee2e2;
-            --bg: #f3f4f6;
+            --primary: #4f46e5;
+            --secondary: #7c3aed;
+            --bg: #f8fafc;
             --surface: #ffffff;
-            --text-main: #1f2937;
-            --text-muted: #6b7280;
-            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
+            --text-main: #1e293b;
+            --text-muted: #94a3b8;
+            --sidebar-width: 250px;
+            --sidebar-collapsed: 80px;
             --radius: 20px;
+            --shadow: 0 4px 20px rgba(0,0,0,0.05);
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Poppins', sans-serif; }
-        body { background: var(--bg); margin: 0; padding: 0; color: var(--text-main); padding-bottom: 100px; padding-top: env(safe-area-inset-top); }
-
-        /* HEADER MODERNO */
-        header { 
-            background: var(--surface); 
-            padding: 15px 20px; 
-            position: sticky; top: 0; z-index: 50;
-            border-bottom-left-radius: 25px;
-            border-bottom-right-radius: 25px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-        }
-        .header-content { display: flex; align-items: center; justify-content: space-between; max-width: 1200px; margin: 0 auto; }
-        .logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.2rem; color: var(--primary); }
-        .logo-icon { background: linear-gradient(135deg, var(--primary), var(--secondary)); padding: 8px; border-radius: 12px; color: white; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3); }
-
-        /* LOADING */
-        #loading { position:fixed; top:0; left:0; width:100%; height:100%; background: var(--surface); z-index:2000; display: flex; flex-direction: column; justify-content:center; align-items:center; transition: opacity 0.5s; }
-        .spinner { width: 50px; height: 50px; border: 5px solid var(--bg); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
-        .hidden { display: none !important; }
-
-        /* CARDS DE RESUMO (GRADIENTES) */
-        .summary-scroll { display: flex; gap: 15px; overflow-x: auto; padding: 10px 5px 20px 5px; scrollbar-width: none; }
-        .mini-card { 
-            min-width: 150px; flex: 1; padding: 20px; border-radius: 24px; color: white;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.1); position: relative; overflow: hidden;
-            display: flex; flex-direction: column; justify-content: space-between; height: 110px;
-        }
         
-        /* Estilos específicos dos cards */
-        .card-saldo { background: linear-gradient(135deg, #4f46e5, #8b5cf6); }
-        .card-ent { background: linear-gradient(135deg, #10b981, #34d399); }
-        .card-sai { background: linear-gradient(135deg, #ef4444, #f87171); }
+        body { 
+            background: var(--bg); margin: 0; padding: 0; color: var(--text-main);
+            overflow-x: hidden; height: 100vh; display: flex;
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            width: var(--sidebar-width); background: var(--surface); height: 100vh;
+            position: fixed; left: 0; top: 0; padding: 20px; display: flex; flex-direction: column;
+            transition: width 0.3s ease; z-index: 1000; box-shadow: 4px 0 15px rgba(0,0,0,0.03);
+            border-right: 1px solid rgba(0,0,0,0.05);
+        }
+        .sidebar.collapsed { width: var(--sidebar-collapsed); }
+        .sidebar.collapsed .logo-text, .sidebar.collapsed .menu-text { display: none; }
+        .sidebar.collapsed .btn-toggle { transform: rotate(180deg); }
+
+        .logo-area { display: flex; align-items: center; gap: 12px; margin-bottom: 40px; white-space: nowrap; overflow: hidden; }
+        .logo-icon { min-width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; }
+        .logo-text { font-weight: 700; font-size: 1.2rem; color: var(--primary); }
+
+        .menu-list { display: flex; flex-direction: column; gap: 10px; flex: 1; }
+        .menu-item {
+            display: flex; align-items: center; gap: 15px; padding: 14px; border-radius: 16px;
+            color: var(--text-muted); cursor: pointer; transition: all 0.2s; white-space: nowrap; overflow: hidden;
+            border: none; background: none; font-size: 1rem; font-weight: 500;
+        }
+        .menu-item:hover { background: #f1f5f9; color: var(--primary); }
+        .menu-item.active { background: #e0e7ff; color: var(--primary); font-weight: 600; }
+        .menu-item svg { width: 24px; height: 24px; min-width: 24px; }
+
+        .btn-toggle { margin-top: auto; background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 10px; display: flex; justify-content: center; transition: 0.3s; }
+
+        /* --- CONTENT --- */
+        .main-content { flex: 1; margin-left: var(--sidebar-width); padding: 30px; height: 100vh; overflow-y: auto; transition: margin-left 0.3s ease; }
+        .sidebar.collapsed + .main-content { margin-left: var(--sidebar-collapsed); }
+
+        .mobile-header { display: none; align-items: center; justify-content: space-between; padding: 15px 20px; background: var(--surface); position: sticky; top: 0; z-index: 90; box-shadow: var(--shadow); margin: -30px -30px 20px -30px; }
         
-        /* Bolhas de fundo decorativas */
-        .mini-card::before { content:''; position: absolute; width: 80px; height: 80px; background: rgba(255,255,255,0.1); border-radius: 50%; top: -20px; right: -20px; }
-        .mini-card::after { content:''; position: absolute; width: 60px; height: 60px; background: rgba(255,255,255,0.1); border-radius: 50%; bottom: -10px; left: -10px; }
+        .view-section { display: none; animation: fadeIn 0.4s ease; max-width: 1000px; margin: 0 auto; }
+        .view-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .mini-card small { font-size: 0.75rem; opacity: 0.9; font-weight: 500; z-index: 2; }
-        .mini-card .val { font-size: 1.4rem; font-weight: 700; z-index: 2; margin-top: auto; }
-
-        /* PAINÉIS E FORMULÁRIOS */
-        .panel { background: var(--surface); padding: 25px; border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 25px; border: 1px solid rgba(0,0,0,0.02); }
-        h3.title { margin: 0 0 20px 0; font-size: 1.1rem; color: var(--text-main); font-weight: 700; display: flex; align-items: center; gap: 8px; }
-
-        input, select { 
-            width: 100%; padding: 16px; margin-bottom: 12px; 
-            background: var(--bg); border: 2px solid transparent; 
-            border-radius: 16px; font-size: 0.95rem; color: var(--text-main); font-weight: 500;
-            transition: all 0.3s ease; outline: none; -webkit-appearance: none;
-        }
-        input:focus, select:focus { background: var(--surface); border-color: var(--primary); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.1); }
+        h2 { margin: 0 0 20px 0; font-size: 1.5rem; color: var(--text-main); }
         
-        .btn-primary { 
-            width: 100%; padding: 16px; border: none; border-radius: 16px;
-            background: var(--primary); color: white; font-weight: 600; font-size: 1rem;
-            cursor: pointer; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
-            transition: transform 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px;
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stats-card { background: white; padding: 25px; border-radius: 24px; box-shadow: var(--shadow); color: white; }
+        .stats-card.c1 { background: linear-gradient(135deg, #4f46e5, #818cf8); }
+        .stats-card.c2 { background: linear-gradient(135deg, #10b981, #34d399); }
+        .stats-card.c3 { background: linear-gradient(135deg, #ef4444, #f87171); }
+        .stats-card .lbl { font-size: 0.8rem; opacity: 0.9; font-weight: 600; text-transform: uppercase; }
+        .stats-card .val { font-size: 1.8rem; font-weight: 700; margin-top: 5px; }
+
+        .panel { background: white; padding: 25px; border-radius: 24px; box-shadow: var(--shadow); margin-bottom: 20px; }
+        input, select { width: 100%; padding: 16px; margin-bottom: 12px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 1rem; outline: none; background: #f8fafc; }
+        input:focus { border-color: var(--primary); background: white; }
+        .btn { width: 100%; padding: 16px; border: none; border-radius: 12px; background: var(--primary); color: white; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .btn:active { transform: scale(0.98); }
+
+        .list-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #f1f5f9; }
+        .notif-item { background: #fff; padding: 15px; border-radius: 16px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; border-left: 5px solid var(--secondary); box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        .notif-day { background: var(--bg); width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--secondary); margin-right: 15px; }
+
+        @media (max-width: 991px) {
+            .sidebar { transform: translateX(-100%); width: 280px; }
+            .sidebar.active { transform: translateX(0); }
+            .main-content { margin-left: 0; padding: 20px; }
+            .mobile-header { display: flex; }
+            #overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.3); z-index:900; display:none; }
+            #overlay.active { display: block; }
         }
-        .btn-primary:active { transform: scale(0.97); }
-
-        .row-inputs { display: flex; gap: 12px; }
-
-        /* LISTA DE TRANSAÇÕES (ESTILO CARD) */
-        .trans-item { 
-            display: flex; justify-content: space-between; align-items: center; 
-            padding: 16px; margin-bottom: 12px; background: var(--bg); 
-            border-radius: 18px; transition: transform 0.2s;
-        }
-        .trans-item:active { transform: scale(0.98); background: #e5e7eb; }
-        
-        .icon-box { 
-            width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; 
-            font-size: 1.2rem; margin-right: 15px; flex-shrink: 0;
-        }
-        .icon-in { background: var(--success-bg); color: var(--success); }
-        .icon-out { background: var(--danger-bg); color: var(--danger); }
-
-        .trans-info { flex: 1; }
-        .trans-desc { font-weight: 600; color: var(--text-main); font-size: 0.95rem; }
-        .trans-date { font-size: 0.75rem; color: var(--text-muted); margin-top: 3px; }
-        .trans-val { font-weight: 700; font-size: 1rem; }
-        
-        .btn-del { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; color: #9ca3af; background: none; border: none; font-size: 1.2rem; margin-left: 10px; }
-
-        /* MENU INFERIOR (GLASSMORPHISM) */
-        .bottom-nav { 
-            position: fixed; bottom: 20px; left: 20px; right: 20px; 
-            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            border-radius: 25px; padding: 12px 20px; display: flex; justify-content: space-around; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.5); z-index: 100; max-width: 600px; margin: 0 auto;
-        }
-        .nav-item { border: none; background: none; color: #94a3b8; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 0.7rem; font-weight: 600; transition: all 0.3s; }
-        .nav-item svg { width: 24px; height: 24px; stroke-width: 2.5; transition: all 0.3s; }
-        .nav-item.active { color: var(--primary); }
-        .nav-item.active svg { transform: translateY(-3px); stroke: var(--primary); }
-
-        /* DASHBOARD */
-        .kpi-grid { display: grid; gap: 15px; margin-bottom: 25px; }
-        .kpi-row { background: var(--surface); padding: 20px; border-radius: 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: var(--shadow); }
-        .kpi-label { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; }
-        .kpi-val { font-size: 1.2rem; font-weight: 700; color: var(--text-main); }
-        .chart-box { background: var(--surface); padding: 20px; border-radius: 24px; box-shadow: var(--shadow); margin-bottom: 20px; height: 300px; position: relative; }
-
-        /* DESKTOP NAV */
-        .desktop-menu { display: none; gap: 10px; }
-        .d-btn { background: transparent; padding: 10px 20px; border-radius: 12px; border: none; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: all 0.2s; }
-        .d-btn:hover { background: var(--bg); }
-        .d-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
-
-        @media (min-width: 768px) {
-            .bottom-nav { display: none; }
-            .desktop-menu { display: flex; }
-            .container { max-width: 1000px; padding: 40px 20px; }
-            .main-layout { display: grid; grid-template-columns: 350px 1fr; gap: 30px; align-items: start; }
-            .kpi-grid { grid-template-columns: repeat(3, 1fr); }
-        }
-
-        .text-success { color: var(--success); }
-        .text-danger { color: var(--danger); }
     </style>
 </head>
 <body>
 
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
-  }
-</script>
+<div id="overlay" onclick="toggleSidebar()"></div>
 
-<div id="loading">
-    <div class="spinner"></div>
-    <div style="margin-top:20px; font-weight:600; color:#4f46e5; font-size: 0.9rem; letter-spacing: 1px;">CARREGANDO...</div>
-</div>
-
-<header>
-    <div class="header-content">
-        <div class="logo">
-            <div class="logo-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-            </div>
-            Finanças Pro
+<nav class="sidebar" id="sidebar">
+    <div class="logo-area">
+        <div class="logo-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
         </div>
-        <nav class="desktop-menu">
-            <button class="d-btn active" onclick="go('home', this)">Início</button>
-            <button class="d-btn" onclick="go('dash', this)">Relatórios</button>
-        </nav>
+        <span class="logo-text">Finanças Pro</span>
     </div>
-</header>
-
-<div class="container">
-
-    <div id="view-home">
-        <div class="summary-scroll">
-            <div class="mini-card card-saldo">
-                <small>SALDO ATUAL</small>
-                <div class="val" id="resSaldo">...</div>
-            </div>
-            <div class="mini-card card-ent">
-                <small>ENTRADAS</small>
-                <div class="val" id="resEntradas">...</div>
-            </div>
-            <div class="mini-card card-sai">
-                <small>SAÍDAS</small>
-                <div class="val" id="resSaidas">...</div>
-            </div>
-        </div>
-
-        <div class="main-layout">
-            <div>
-                <div class="panel">
-                    <h3 class="title">✨ Novo Lançamento</h3>
-                    <form id="formTrans">
-                        <input type="text" id="desc" placeholder="O que foi?" required>
-                        <div class="row-inputs">
-                            <input type="number" id="valor" placeholder="R$ 0,00" step="0.01" required>
-                            <input type="date" id="data" required>
-                        </div>
-                        <select id="tipo">
-                            <option value="saida">🔴 Gasto (Saída)</option>
-                            <option value="entrada">🟢 Ganho (Entrada)</option>
-                        </select>
-                        <button type="submit" class="btn-primary">Adicionar</button>
-                    </form>
-                </div>
-
-                <div class="panel">
-                    <h3 class="title">📅 Fixos Mensais</h3>
-                    <form id="formFixo">
-                        <div class="row-inputs">
-                            <input type="text" id="fDesc" placeholder="Ex: Netflix" required>
-                            <input type="number" id="fValor" placeholder="Valor" step="0.01" required>
-                        </div>
-                        <button type="submit" class="btn-primary" style="background: var(--secondary)">Fixar</button>
-                    </form>
-                    <div id="listaFixos" style="margin-top:20px"></div>
-                </div>
-            </div>
-
-            <div class="panel">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px">
-                    <h3 class="title" style="margin:0">Movimentações</h3>
-                    <button onclick="exportarExcel()" style="background:var(--bg); color:var(--text-main); border:none; padding:8px 12px; border-radius:10px; font-size:0.8rem; font-weight:600">📥 Excel</button>
-                </div>
-                <div id="listaTrans">Carregando...</div>
-            </div>
-        </div>
+    <div class="menu-list">
+        <button class="menu-item active" onclick="go('home', this)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            <span class="menu-text">Home</span>
+        </button>
+        <button class="menu-item" onclick="go('dash', this)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+            <span class="menu-text">Dashboards</span>
+        </button>
+        <button class="menu-item" onclick="go('notif', this)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            <span class="menu-text">Notificações</span>
+        </button>
     </div>
-
-    <div id="view-dash" class="hidden">
-        <h2 style="margin:0 0 25px 0; font-size:1.5rem;">Panorama Financeiro</h2>
-        
-        <div class="kpi-grid">
-            <div class="kpi-row">
-                <div><div class="kpi-label">SAÚDE</div><div class="kpi-val" id="kpiSaudeVal">--</div></div>
-                <div id="kpiIcon" style="font-size:1.5rem">⚖️</div>
-            </div>
-            <div class="kpi-row">
-                <div><div class="kpi-label">POUPANÇA</div><div class="kpi-val text-success" id="kpiEconVal">0%</div></div>
-                <div style="font-size:1.5rem">📈</div>
-            </div>
-            <div class="kpi-row">
-                <div><div class="kpi-label">MAIOR GASTO</div><div class="kpi-val text-danger" id="kpiMaiorVal">R$ 0</div></div>
-                <div style="font-size:1.5rem">🔥</div>
-            </div>
-        </div>
-
-        <div class="chart-box">
-            <canvas id="chartEvo"></canvas>
-        </div>
-        <div class="chart-box">
-            <canvas id="chartDist"></canvas>
-        </div>
-    </div>
-</div>
-
-<nav class="bottom-nav">
-    <button class="nav-item active" onclick="go('home', this)">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-        Início
-    </button>
-    <button class="nav-item" onclick="go('dash', this)">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-        Relatórios
+    <button class="btn-toggle" onclick="toggleSidebarSize()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
     </button>
 </nav>
+
+<main class="main-content">
+    <div class="mobile-header">
+        <div style="font-weight:700; color:var(--primary)">Finanças Pro</div>
+        <button onclick="toggleSidebar()" style="background:none; border:none; color:var(--text-main)"><svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></button>
+    </div>
+
+    <div id="view-home" class="view-section active">
+        <h2>Visão Geral</h2>
+        <div class="card-grid">
+            <div class="stats-card c1"><div class="lbl">Saldo</div><div class="val" id="resSaldo">...</div></div>
+            <div class="stats-card c2"><div class="lbl">Entradas</div><div class="val" id="resEntradas">...</div></div>
+            <div class="stats-card c3"><div class="lbl">Saídas</div><div class="val" id="resSaidas">...</div></div>
+        </div>
+        <div class="panel">
+            <h3>Novo Lançamento</h3>
+            <form id="formTrans">
+                <input type="text" id="desc" placeholder="Descrição" required>
+                <div style="display:flex; gap:10px">
+                    <input type="number" id="valor" placeholder="R$ 0,00" step="0.01" required>
+                    <input type="date" id="data" required>
+                </div>
+                <select id="tipo">
+                    <option value="saida">🔴 Saída</option>
+                    <option value="entrada">🟢 Entrada</option>
+                </select>
+                <button type="submit" class="btn">Adicionar</button>
+            </form>
+        </div>
+        <div class="panel"><h3>Extrato Recente</h3><div id="listaTrans">Carregando...</div></div>
+    </div>
+
+    <div id="view-dash" class="view-section">
+        <h2>Dashboards</h2>
+        <div class="panel">
+            <h3>Evolução (Últimos 6 Meses)</h3>
+            <div style="height:300px; position:relative"><canvas id="chartEvo"></canvas></div>
+        </div>
+        <div class="panel">
+            <h3>Distribuição de Gastos</h3>
+            <div style="height:300px; position:relative"><canvas id="chartDist"></canvas></div>
+        </div>
+    </div>
+
+    <div id="view-notif" class="view-section">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px">
+            <h2>Alertas</h2>
+            <button onclick="testarNotificacao()" style="background:var(--text-muted); color:white; border:none; padding:8px 15px; border-radius:10px; font-size:0.8rem; cursor:pointer">🔔 Testar no Celular</button>
+        </div>
+        <div class="panel" style="border-left:5px solid var(--secondary)">
+            <p style="margin:0; font-size:0.9rem; color:#64748b">🔔 Cadastre o dia de vencimento. O alerta chegará no seu celular quando você abrir o app no dia.</p>
+        </div>
+        <div class="panel">
+            <h3>Novo Alerta</h3>
+            <form id="formNotif">
+                <input type="text" id="nDesc" placeholder="Nome da Conta (ex: Aluguel)" required>
+                <select id="nDia" required><option value="">Selecione o dia...</option></select>
+                <button type="submit" class="btn" style="background:var(--secondary)">Criar Alerta</button>
+            </form>
+        </div>
+        <h3>Meus Alertas</h3>
+        <div id="listaNotif"></div>
+    </div>
+</main>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
     import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
-    // --- COLE AQUI SUA CONFIG DO FIREBASE ---
+    // --- FIREBASE CONFIG ---
     const firebaseConfig = {
         apiKey: "AIzaSyC2NH5D5-dBk057use7wRQtF25vcBDw7Lo",
         authDomain: "financas-2abdf.firebaseapp.com",
@@ -303,131 +217,146 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    let trans = [], fixos = [];
+    let trans = [], notifs = [];
     let chart1 = null, chart2 = null;
     document.getElementById('data').valueAsDate = new Date();
 
-    const qT = query(collection(db, "transacoes"), orderBy("data", "desc"));
-    onSnapshot(qT, (snap) => {
+    const selDia = document.getElementById('nDia');
+    for(let i=1; i<=31; i++) { let opt = document.createElement('option'); opt.value = i; opt.innerText = `Dia ${i}`; selDia.appendChild(opt); }
+
+    // --- CARREGAR DADOS ---
+    onSnapshot(query(collection(db, "transacoes"), orderBy("data", "desc")), (snap) => {
         trans = snap.docs.map(d => ({id:d.id, ...d.data()}));
-        renderAll();
-        document.getElementById('loading').style.opacity = '0';
-        setTimeout(() => document.getElementById('loading').style.display='none', 500);
-    });
-
-    onSnapshot(query(collection(db, "fixos")), (snap) => {
-        fixos = snap.docs.map(d => ({id:d.id, ...d.data()}));
-        renderAll();
-    });
-
-    function renderAll() {
         renderHome();
-        if(!document.getElementById('view-dash').classList.contains('hidden')) renderDash();
-    }
+        if(document.getElementById('view-dash').style.display === 'block') renderCharts();
+    });
 
+    onSnapshot(query(collection(db, "vencimentos")), (snap) => {
+        notifs = snap.docs.map(d => ({id:d.id, ...d.data()}));
+        renderNotif();
+        checkAlerts();
+    });
+
+    // --- FUNÇÕES ---
     function renderHome() {
-        const listT = document.getElementById('listaTrans'), listF = document.getElementById('listaFixos');
-        listT.innerHTML = ''; listF.innerHTML = '';
-        let e = 0, s = 0, f = 0;
-        
-        fixos.forEach(x => {
-            f += x.valor;
-            listF.innerHTML += `<div class="trans-item">
-                <div style="display:flex; align-items:center"><div class="icon-box icon-out">🔒</div><span>${x.desc}</span></div>
-                <div style="display:flex;align-items:center"><span style="font-weight:700">${fmt(x.valor)}</span><button class="btn-del" onclick="delF('${x.id}')">×</button></div>
-            </div>`;
-        });
-
-        trans.slice(0, 50).forEach(t => {
+        const list = document.getElementById('listaTrans'); list.innerHTML = '';
+        let e = 0, s = 0;
+        trans.slice(0, 30).forEach(t => {
             if(t.tipo === 'entrada') e += t.valor; else s += t.valor;
-            const isEnt = t.tipo === 'entrada';
-            listT.innerHTML += `
-            <div class="trans-item">
-                <div style="display:flex; align-items:center; overflow:hidden">
-                    <div class="icon-box ${isEnt?'icon-in':'icon-out'}">${isEnt?'↓':'↑'}</div>
-                    <div class="trans-info">
-                        <div class="trans-desc">${t.desc}</div>
-                        <div class="trans-date">${t.data.split('-').reverse().join('/')}</div>
-                    </div>
-                </div>
-                <div style="display:flex; align-items:center">
-                    <div class="trans-val ${isEnt?'text-success':'text-danger'}">${isEnt?'+':'-'} ${fmt(t.valor)}</div>
-                    <button class="btn-del" onclick="delT('${t.id}')"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
-                </div>
-            </div>`;
+            list.innerHTML += `<div class="list-item"><div><div style="font-weight:600">${t.desc}</div><div style="font-size:0.8rem; color:#94a3b8">${t.data.split('-').reverse().join('/')}</div></div><div style="text-align:right"><div style="font-weight:700; color:${t.tipo==='entrada'?'var(--secondary)':'#ef4444'}">${t.tipo==='entrada'?'+':'-'} ${fmt(t.valor)}</div><small onclick="delT('${t.id}')" style="color:#ccc; cursor:pointer">x</small></div></div>`;
         });
-
-        const saldo = e - s - f;
-        document.getElementById('resSaldo').innerText = fmt(saldo);
+        document.getElementById('resSaldo').innerText = fmt(e - s);
         document.getElementById('resEntradas').innerText = fmt(e);
-        document.getElementById('resSaidas').innerText = fmt(s + f);
+        document.getElementById('resSaidas').innerText = fmt(s);
     }
 
-    function renderDash() {
-        const totalFixo = fixos.reduce((a,b)=>a+b.valor, 0);
-        let totalE = 0, totalS = 0;
-        let maior = {v:0, d:'--'};
-        const map = {};
-        for(let i=5; i>=0; i--) { const d = new Date(); d.setMonth(d.getMonth()-i); map[d.toISOString().slice(0,7)] = {e:0, s:0}; }
+    // --- CHARTS (CORRIGIDO) ---
+    function renderCharts() {
+        // 1. Preparar dados: Últimos 6 meses
+        const meses = {};
+        for(let i=5; i>=0; i--) {
+            const d = new Date(); d.setMonth(d.getMonth() - i);
+            const k = d.toISOString().slice(0,7); // "2026-01"
+            meses[k] = { ent: 0, sai: 0 };
+        }
 
+        let totalEnt = 0, totalSai = 0;
         trans.forEach(t => {
-            const k = t.data.slice(0,7);
-            if(t.tipo === 'entrada') { totalE += t.valor; if(map[k]) map[k].e += t.valor; }
-            else { totalS += t.valor; if(map[k]) map[k].s += t.valor; if(t.valor > maior.v) maior = {v:t.valor, d:t.desc}; }
+            const k = t.data.slice(0, 7);
+            if(meses[k]) {
+                if(t.tipo === 'entrada') { meses[k].ent += t.valor; totalEnt += t.valor; }
+                else { meses[k].sai += t.valor; totalSai += t.valor; }
+            }
         });
 
-        Object.keys(map).forEach(k => map[k].s += totalFixo);
-        totalS += totalFixo;
+        const labels = Object.keys(meses).map(k => { const [a,m] = k.split('-'); return `${m}/${a.slice(2)}`; });
+        const dataEnt = Object.values(meses).map(v => v.ent);
+        const dataSai = Object.values(meses).map(v => v.sai);
 
-        const ratio = totalE > 0 ? (totalS/totalE)*100 : 100;
-        const econ = totalE > 0 ? ((totalE - totalS)/totalE)*100 : 0;
-        
-        document.getElementById('kpiEconVal').innerText = Math.max(0, econ).toFixed(0) + '%';
-        document.getElementById('kpiMaiorVal').innerText = fmt(maior.v);
-        
-        const txtS = document.getElementById('kpiSaudeVal');
-        if(ratio > 100) { txtS.innerText='Crítica'; txtS.className='kpi-val text-danger'; }
-        else if(ratio > 70) { txtS.innerText='Atenção'; txtS.className='kpi-val'; txtS.style.color='#f59e0b'; }
-        else { txtS.innerText='Excelente'; txtS.className='kpi-val text-success'; }
-
-        const labels = Object.keys(map).map(k => {const p=k.split('-'); return `${p[1]}/${p[0].slice(2)}`});
-        const dataE = Object.values(map).map(v => v.e), dataS = Object.values(map).map(v => v.s);
-
+        // Chart 1: Barras
         const ctx1 = document.getElementById('chartEvo').getContext('2d');
         if(chart1) chart1.destroy();
-        chart1 = new Chart(ctx1, { type: 'bar', data: { labels, datasets: [{label:'Ganho', data:dataE, backgroundColor:'#10b981', borderRadius:6}, {label:'Gasto', data:dataS, backgroundColor:'#ef4444', borderRadius:6}] }, options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom'}}, scales:{x:{grid:{display:false}}, y:{beginAtZero:true, grid:{color:'#f3f4f6'}}} } });
+        chart1 = new Chart(ctx1, {
+            type: 'bar',
+            data: { labels, datasets: [{label:'Entradas', data:dataEnt, backgroundColor:'#10b981', borderRadius:5}, {label:'Saídas', data:dataSai, backgroundColor:'#ef4444', borderRadius:5}] },
+            options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom'}}, scales:{x:{grid:{display:false}}, y:{beginAtZero:true}} }
+        });
 
+        // Chart 2: Rosca
         const ctx2 = document.getElementById('chartDist').getContext('2d');
         if(chart2) chart2.destroy();
-        chart2 = new Chart(ctx2, { type: 'doughnut', data: { labels: ['Ganho', 'Gasto'], datasets: [{data:[totalE, totalS], backgroundColor:['#10b981','#ef4444'], borderWidth:0}] }, options: { responsive:true, maintainAspectRatio:false, cutout:'75%', plugins:{legend:{position:'bottom'}} } });
+        chart2 = new Chart(ctx2, {
+            type: 'doughnut',
+            data: { labels: ['Ganho Total', 'Gasto Total'], datasets: [{data:[totalEnt, totalSai], backgroundColor:['#10b981','#ef4444'], borderWidth:0}] },
+            options: { responsive:true, maintainAspectRatio:false, cutout:'70%', plugins:{legend:{position:'bottom'}} }
+        });
     }
 
-    window.go = (screen, btn) => {
-        document.querySelectorAll('.nav-item, .d-btn').forEach(b => b.classList.remove('active'));
-        if(btn) btn.classList.add('active');
-        if(screen === 'home') { document.getElementById('view-home').classList.remove('hidden'); document.getElementById('view-dash').classList.add('hidden'); }
-        else { document.getElementById('view-home').classList.add('hidden'); document.getElementById('view-dash').classList.remove('hidden'); renderDash(); }
+    function renderNotif() {
+        const list = document.getElementById('listaNotif'); list.innerHTML = '';
+        notifs.sort((a,b) => a.dia - b.dia).forEach(n => {
+            list.innerHTML += `<div class="notif-item"><div style="display:flex; align-items:center"><div class="notif-day">${n.dia}</div><div style="font-weight:600; color:#334155">${n.desc}</div></div><button onclick="delNotif('${n.id}')" style="border:none; background:none; color:#cbd5e1; cursor:pointer">×</button></div>`;
+        });
     }
 
-    function fmt(v) { return v.toLocaleString('pt-BR', {style:'currency', currency:'BRL'}); }
+    // --- SISTEMA DE ALERTA ---
+    function checkAlerts() {
+        if (!("Notification" in window)) return;
+        const hoje = new Date().getDate();
+        const contas = notifs.filter(n => n.dia === hoje);
+        
+        if (contas.length > 0 && Notification.permission === "granted") {
+            // Verifica se já avisou hoje para não ser chato
+            const chave = 'aviso_' + new Date().toDateString();
+            if(!sessionStorage.getItem(chave)) {
+                new Notification(`📅 Hoje é dia de pagar!`, {
+                    body: `Você tem ${contas.length} conta(s) vencendo hoje.`,
+                    icon: "https://cdn-icons-png.flaticon.com/512/2953/2953363.png"
+                });
+                sessionStorage.setItem(chave, 'true');
+            }
+        }
+    }
+
+    window.testarNotificacao = () => {
+        if (!("Notification" in window)) { alert("Seu navegador não suporta notificações."); return; }
+        Notification.requestPermission().then(permission => {
+            if (permission === "granted") {
+                new Notification("🔔 Teste de Sucesso!", { body: "Se você viu isso, seus alertas vão funcionar!", icon: "https://cdn-icons-png.flaticon.com/512/2953/2953363.png" });
+            } else {
+                alert("Você precisa permitir as notificações nas configurações do navegador/celular.");
+            }
+        });
+    }
+
+    // --- NAVEGAÇÃO ---
+    window.toggleSidebar = () => { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
+    window.toggleSidebarSize = () => { if(window.innerWidth > 991) document.getElementById('sidebar').classList.toggle('collapsed'); }
+    
+    window.go = (view, btn) => {
+        document.querySelectorAll('.menu-item').forEach(b => b.classList.remove('active')); if(btn) btn.classList.add('active');
+        document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active')); document.getElementById('view-'+view).classList.add('active');
+        if(view === 'dash') renderCharts();
+        if(window.innerWidth < 992) window.toggleSidebar();
+    }
 
     document.getElementById('formTrans').addEventListener('submit', async (e) => {
         e.preventDefault();
-        try { await addDoc(collection(db,"transacoes"), { desc: document.getElementById('desc').value, valor: parseFloat(document.getElementById('valor').value), tipo: document.getElementById('tipo').value, data: document.getElementById('data').value, createdAt: Date.now() }); e.target.reset(); document.getElementById('data').valueAsDate = new Date(); } catch(err) { alert(err.message); }
+        await addDoc(collection(db,"transacoes"), { desc: document.getElementById('desc').value, valor: parseFloat(document.getElementById('valor').value), tipo: document.getElementById('tipo').value, data: document.getElementById('data').value, createdAt: Date.now() });
+        e.target.reset(); document.getElementById('data').valueAsDate = new Date();
     });
 
-    document.getElementById('formFixo').addEventListener('submit', async (e) => {
+    document.getElementById('formNotif').addEventListener('submit', async (e) => {
         e.preventDefault();
-        try { await addDoc(collection(db,"fixos"), { desc: document.getElementById('fDesc').value, valor: parseFloat(document.getElementById('fValor').value) }); e.target.reset(); } catch(err) { alert(err.message); }
+        await addDoc(collection(db,"vencimentos"), { desc: document.getElementById('nDesc').value, dia: parseInt(document.getElementById('nDia').value) });
+        e.target.reset(); alert("Alerta criado!");
     });
 
-    window.delT = async (id) => { if(confirm("Apagar?")) await deleteDoc(doc(db,"transacoes",id)); }
-    window.delF = async (id) => { if(confirm("Apagar fixo?")) await deleteDoc(doc(db,"fixos",id)); }
-    
-    window.exportarExcel = () => {
-        const ws = XLSX.utils.json_to_sheet([...trans, ...fixos.map(x=>({...x, tipo:'FIXO'}))]);
-        const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Financas"); XLSX.writeFile(wb, "Financas_Pro.xlsx");
-    }
+    window.delT = async (id) => { if(confirm("Excluir?")) await deleteDoc(doc(db,"transacoes",id)); }
+    window.delNotif = async (id) => { if(confirm("Excluir?")) await deleteDoc(doc(db,"vencimentos",id)); }
+    function fmt(v) { return v.toLocaleString('pt-BR', {style:'currency', currency:'BRL'}); }
+
+    if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js')); }
 </script>
 </body>
 </html>

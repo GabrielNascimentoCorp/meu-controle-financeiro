@@ -2,462 +2,139 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Finanças Pro</title>
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Finanças Enterprise</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#4f46e5">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2953/2953363.png">
-    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2953/2953363.png">
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <style>
-        :root {
-            --primary: #4f46e5; --secondary: #7c3aed;
-            --success: #10b981; --danger: #ef4444; --warning: #f59e0b;
-            --bg: #f8fafc; --surface: #ffffff;
-            --text-main: #1e293b; --text-muted: #94a3b8;
-            --sidebar-width: 260px; --radius: 20px;
-            --shadow: 0 4px 20px rgba(0,0,0,0.05);
-        }
-
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Poppins', sans-serif; }
-        
-        body { background: var(--bg); margin: 0; padding: 0; color: var(--text-main); overflow-x: hidden; height: 100vh; display: flex; }
-
-        /* SIDEBAR */
-        .sidebar { width: var(--sidebar-width); background: var(--surface); height: 100vh; position: fixed; left: 0; top: 0; padding: 25px 20px; display: flex; flex-direction: column; transition: transform 0.3s ease; z-index: 1000; box-shadow: 4px 0 15px rgba(0,0,0,0.03); border-right: 1px solid rgba(0,0,0,0.05); }
-        .logo-area { display: flex; align-items: center; gap: 12px; margin-bottom: 40px; }
-        .logo-icon { min-width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3); }
-        .logo-text { font-weight: 700; font-size: 1.2rem; color: var(--primary); }
-        .menu-list { display: flex; flex-direction: column; gap: 8px; flex: 1; }
-        .menu-item { display: flex; align-items: center; gap: 15px; padding: 14px; border-radius: 16px; color: var(--text-muted); cursor: pointer; transition: all 0.2s; border: none; background: none; font-size: 0.95rem; font-weight: 500; width: 100%; text-align: left; }
-        .menu-item:hover { background: #f1f5f9; color: var(--primary); }
-        .menu-item.active { background: #e0e7ff; color: var(--primary); font-weight: 600; }
-        .menu-item svg { width: 22px; height: 22px; }
-
-        /* CONTENT */
-        .main-content { flex: 1; margin-left: var(--sidebar-width); padding: 30px; height: 100vh; overflow-y: auto; transition: margin-left 0.3s ease; }
-        
-        /* MOBILE COMPONENTS */
-        .mobile-header { 
-            display: none; 
-            align-items: center; 
-            justify-content: space-between; 
-            padding: 15px 20px; 
-            background: rgba(255, 255, 255, 0.95); /* Mais sólido */
-            backdrop-filter: blur(10px); /* Efeito vidro */
-            -webkit-backdrop-filter: blur(10px);
-            position: sticky; 
-            top: 0; 
-            z-index: 900; 
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08); 
-            /* Correção do overlap: Margem negativa para encostar nas bordas, margem positiva embaixo para empurrar o conteudo */
-            margin: -30px -30px 30px -30px; 
-        }
-
-        .menu-btn { background: none; border: none; color: var(--text-main); padding: 5px; cursor: pointer; }
-        #overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); z-index:900; display:none; backdrop-filter: blur(2px); }
-        #overlay.active { display: block; }
-
-        /* VIEWS */
-        .view-section { display: none; animation: fadeIn 0.4s ease; max-width: 1100px; margin: 0 auto; }
-        .view-section.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* UI ELEMENTS */
-        h2 { margin: 0 0 25px 0; font-size: 1.6rem; color: var(--text-main); font-weight: 700; }
-        .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 30px; }
-        .stats-card { background: white; padding: 25px; border-radius: 24px; box-shadow: var(--shadow); color: white; position: relative; overflow: hidden; }
-        .stats-card.c1 { background: linear-gradient(135deg, #4f46e5, #818cf8); }
-        .stats-card.c2 { background: linear-gradient(135deg, #10b981, #34d399); }
-        .stats-card.c3 { background: linear-gradient(135deg, #ef4444, #f87171); }
-        .stats-card .lbl { font-size: 0.8rem; opacity: 0.9; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-        .stats-card .val { font-size: 1.8rem; font-weight: 700; margin-top: 5px; }
-
-        .panel { background: white; padding: 25px; border-radius: 24px; box-shadow: var(--shadow); margin-bottom: 25px; border: 1px solid rgba(0,0,0,0.02); }
-        input, select { width: 100%; padding: 16px; margin-bottom: 15px; border: 1px solid #e2e8f0; border-radius: 14px; font-size: 1rem; outline: none; background: #f8fafc; transition: 0.2s; }
-        input:focus { border-color: var(--primary); background: white; }
-        .btn { width: 100%; padding: 16px; border: none; border-radius: 14px; background: var(--primary); color: white; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 1rem; }
-        
-        .list-item { display: flex; justify-content: space-between; align-items: center; padding: 16px; border-bottom: 1px solid #f1f5f9; }
-        .fixo-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #eee; }
-        
-        /* KPI TAGS */
-        .kpi-tag { padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; }
-        .tag-good { background: #dcfce7; color: var(--success); }
-        .tag-bad { background: #fee2e2; color: var(--danger); }
-        .tag-warn { background: #fef3c7; color: var(--warning); }
-        
-        /* NOTIFICATIONS */
-        .notif-item { background: #fff; padding: 18px; border-radius: 18px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; border-left: 5px solid var(--secondary); box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
-        .notif-day { background: #f3f4f6; width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--secondary); margin-right: 15px; font-size: 1.1rem; }
-
-        @media (max-width: 991px) {
-            .sidebar { transform: translateX(-100%); width: 280px; }
-            .sidebar.active { transform: translateX(0); }
-            /* Ajuste de padding no mobile para compensar o header fixo */
-            .main-content { margin-left: 0; padding: 20px; padding-top: 0; }
-            .mobile-header { display: flex; margin: 0 -20px 25px -20px; }
-            /* Empurrar título um pouco mais pra baixo */
-            h2 { margin-top: 10px; }
-        }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-<div id="overlay" onclick="toggleSidebar()"></div>
-
-<nav class="sidebar" id="sidebar">
-    <div class="logo-area">
-        <div class="logo-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
-        <span class="logo-text">Finanças Pro</span>
-    </div>
-    
-    <div class="menu-list">
-        <button class="menu-item active" onclick="go('home', this)">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-            Início
-        </button>
-        <button class="menu-item" onclick="go('dash', this)">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-            Dashboards
-        </button>
-        <button class="menu-item" onclick="go('notif', this)">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-            Notificações
-        </button>
-    </div>
-</nav>
-
-<main class="main-content">
-    
-    <div class="mobile-header">
-        <div style="font-weight:700; color:var(--primary); font-size:1.1rem">Finanças Pro</div>
-        <button class="menu-btn" onclick="toggleSidebar()">
-            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-        </button>
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+        <p>Iniciando sistema...</p>
     </div>
 
-    <div id="view-home" class="view-section active">
-        <h2>Visão Geral</h2>
-        <div class="card-grid">
-            <div class="stats-card c1"><div class="lbl">Saldo</div><div class="val" id="resSaldo">...</div></div>
-            <div class="stats-card c2"><div class="lbl">Entradas</div><div class="val" id="resEntradas">...</div></div>
-            <div class="stats-card c3"><div class="lbl">Saídas</div><div class="val" id="resSaidas">...</div></div>
-        </div>
-
-        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:20px;">
-            <div class="panel">
-                <h3>Novo Lançamento</h3>
-                <form id="formTrans">
-                    <input type="text" id="desc" placeholder="Descrição" required>
-                    <div style="display:flex; gap:10px">
-                        <input type="number" id="valor" placeholder="R$ 0,00" step="0.01" required>
-                        <input type="date" id="data" required>
-                    </div>
-                    <select id="tipo">
-                        <option value="saida">🔴 Saída (Gasto)</option>
-                        <option value="entrada">🟢 Entrada (Ganho)</option>
-                    </select>
-                    <button type="submit" class="btn">Adicionar</button>
-                </form>
-            </div>
-
-            <div class="panel">
-                <h3>Gastos Fixos Mensais</h3>
-                <form id="formFixo">
-                    <div style="display:flex; gap:10px">
-                        <input type="text" id="fDesc" placeholder="Ex: Internet" required style="margin-bottom:0">
-                        <input type="number" id="fValor" placeholder="Valor" step="0.01" required style="width:100px; margin-bottom:0">
-                    </div>
-                    <button type="submit" class="btn" style="margin-top:10px; background:var(--secondary)">Fixar Valor</button>
-                </form>
-                <div id="listaFixos" style="margin-top:20px; max-height:200px; overflow-y:auto"></div>
-            </div>
-        </div>
-
-        <div class="panel">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px">
-                <h3>Extrato</h3>
-                <button onclick="window.exportarExcel()" style="background:#f1f5f9; border:none; padding:8px 12px; border-radius:8px; color:#64748b; font-weight:600; cursor:pointer">📥 Excel</button>
-            </div>
-            <div id="listaTrans">Carregando...</div>
-        </div>
-    </div>
-
-    <div id="view-dash" class="view-section">
-        <h2>Inteligência Financeira</h2>
-        
-        <div class="card-grid">
-            <div class="panel" style="margin:0; display:flex; flex-direction:column; justify-content:center">
-                <div style="font-size:0.8rem; font-weight:700; color:var(--text-muted); margin-bottom:5px">SAÚDE</div>
-                <div id="kpiSaude" style="font-weight:700; font-size:1.2rem">--</div>
-            </div>
-            <div class="panel" style="margin:0; display:flex; flex-direction:column; justify-content:center">
-                <div style="font-size:0.8rem; font-weight:700; color:var(--text-muted); margin-bottom:5px">POUPANÇA</div>
-                <div id="kpiPoupanca" style="font-weight:700; font-size:1.4rem; color:var(--success)">--%</div>
-            </div>
-            <div class="panel" style="margin:0; display:flex; flex-direction:column; justify-content:center">
-                <div style="font-size:0.8rem; font-weight:700; color:var(--text-muted); margin-bottom:5px">MAIOR GASTO</div>
-                <div id="kpiMaior" style="font-weight:700; font-size:1.4rem; color:var(--danger)">R$ 0</div>
-            </div>
-        </div>
-
-        <div class="panel">
-            <h3>Fluxo (Últimos 6 Meses)</h3>
-            <div style="height:300px; position:relative"><canvas id="chartEvo"></canvas></div>
-        </div>
-        <div class="panel">
-            <h3>Categorias</h3>
-            <div style="height:300px; position:relative"><canvas id="chartDist"></canvas></div>
-        </div>
-    </div>
-
-    <div id="view-notif" class="view-section">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px">
-            <h2>Alertas de Vencimento</h2>
-            <button onclick="testarNotificacao()" style="background:#e0e7ff; color:var(--primary); border:none; padding:8px 15px; border-radius:10px; font-weight:600; cursor:pointer">🔔 Testar</button>
-        </div>
-
-        <div class="panel" style="border-left:5px solid var(--secondary)">
-            <p style="margin:0; font-size:0.9rem; color:#64748b">
-                📅 Cadastre o dia do vencimento. Ao abrir o app neste dia, você será alertado.
-            </p>
-        </div>
-
-        <div class="panel">
-            <h3>Novo Alerta</h3>
-            <form id="formNotif">
-                <input type="text" id="nDesc" placeholder="Nome da Conta (ex: Aluguel)" required>
-                <select id="nDia" required><option value="">Selecione o dia...</option></select>
-                <button type="submit" class="btn" style="background:var(--secondary)">Criar Alerta</button>
+    <div id="auth-screen">
+        <div class="card-auth">
+            <h2 class="text-primary">Finanças Pro</h2>
+            <p class="text-muted">Acesso Corporativo</p>
+            
+            <form id="form-login">
+                <input type="email" id="login-email" placeholder="E-mail" required>
+                <input type="password" id="login-pass" placeholder="Senha" required>
+                <button type="submit" class="btn btn-primary">Entrar</button>
             </form>
+            
+            <button id="btn-show-register" class="btn-link">Não tem conta? Cadastrar</button>
+            
+            <form id="form-register" class="hidden">
+                <input type="text" id="reg-name" placeholder="Nome" required>
+                <input type="email" id="reg-email" placeholder="E-mail" required>
+                <input type="password" id="reg-pass" placeholder="Senha" required>
+                <button type="submit" class="btn btn-success">Cadastrar</button>
+            </form>
+            <p id="auth-error" class="error-msg"></p>
         </div>
-
-        <h3>Meus Alertas</h3>
-        <div id="listaNotif"></div>
     </div>
-</main>
 
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-
-    // --- FIREBASE CONFIG (SEUS DADOS) ---
-    const firebaseConfig = {
-        apiKey: "AIzaSyC2NH5D5-dBk057use7wRQtF25vcBDw7Lo",
-        authDomain: "financas-2abdf.firebaseapp.com",
-        projectId: "financas-2abdf",
-        storageBucket: "financas-2abdf.firebasestorage.app",
-        messagingSenderId: "720802610676",
-        appId: "1:720802610676:web:e1aea9c52df5b67ff24da1",
-        measurementId: "G-8F06PFR2N4"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    let trans = [], notifs = [], fixos = [];
-    let chart1 = null, chart2 = null;
-    document.getElementById('data').valueAsDate = new Date();
-
-    const selDia = document.getElementById('nDia');
-    for(let i=1; i<=31; i++) { let opt = document.createElement('option'); opt.value = i; opt.innerText = `Dia ${i}`; selDia.appendChild(opt); }
-
-    // --- LEITURA DADOS ---
-    // 1. Transações
-    onSnapshot(query(collection(db, "transacoes"), orderBy("data", "desc")), (snap) => {
-        trans = snap.docs.map(d => ({id:d.id, ...d.data()}));
-        renderHome();
-        try { renderDash(); } catch(e){console.log("Erro dash:", e)}
-    });
-
-    // 2. Fixos (Restaurado)
-    onSnapshot(query(collection(db, "fixos")), (snap) => {
-        fixos = snap.docs.map(d => ({id:d.id, ...d.data()}));
-        renderHome(); // Atualiza saldo pois fixos impactam
-    });
-
-    // 3. Notificações
-    onSnapshot(query(collection(db, "vencimentos")), (snap) => {
-        notifs = snap.docs.map(d => ({id:d.id, ...d.data()}));
-        renderNotif();
-        checkAlerts();
-    });
-
-    // --- RENDER HOME ---
-    function renderHome() {
-        const list = document.getElementById('listaTrans'); 
-        const listF = document.getElementById('listaFixos');
-        list.innerHTML = ''; listF.innerHTML = '';
+    <div id="app-screen" class="hidden">
         
-        let e = 0, s = 0, f = 0;
-        
-        // Render Fixos
-        fixos.forEach(x => {
-            f += x.valor;
-            listF.innerHTML += `<div class="fixo-item"><span>${x.desc}</span><div style="font-weight:700">${fmt(x.valor)} <span onclick="delF('${x.id}')" style="color:#ccc;cursor:pointer;margin-left:5px">×</span></div></div>`;
-        });
+        <header class="mobile-header">
+            <h3>Finanças Pro</h3>
+            <button id="btn-menu-toggle">☰</button>
+        </header>
 
-        // Render Transações
-        if(trans.length === 0) list.innerHTML = '<div style="text-align:center; padding:20px; color:#94a3b8">Nenhum lançamento.</div>';
-        
-        trans.slice(0, 30).forEach(t => {
-            if(t.tipo === 'entrada') e += t.valor; else s += t.valor;
-            list.innerHTML += `<div class="list-item"><div><div style="font-weight:600; color:var(--text-main)">${t.desc}</div><div style="font-size:0.8rem; color:var(--text-muted)">${t.data ? t.data.split('-').reverse().join('/') : '--'}</div></div><div style="text-align:right"><div style="font-weight:700; color:${t.tipo==='entrada'?'var(--success)':'var(--danger)'}">${t.tipo==='entrada'?'+':'-'} ${fmt(t.valor)}</div><small onclick="delT('${t.id}')" style="color:#cbd5e1; cursor:pointer">apagar</small></div></div>`;
-        });
+        <div class="layout-container">
+            <nav id="sidebar" class="sidebar">
+                <div class="logo">Finanças Pro</div>
+                <div class="menu">
+                    <button class="menu-item active" data-target="home">🏠 Início</button>
+                    <button class="menu-item" data-target="dash">📊 Relatórios</button>
+                    <button class="menu-item" data-target="notif">🔔 Notificações</button>
+                    <button class="menu-item admin-only hidden" data-target="admin">🔒 Admin</button>
+                </div>
+                <div class="user-footer">
+                    <small id="user-display">...</small>
+                    <button id="btn-logout" class="btn btn-small">Sair</button>
+                </div>
+            </nav>
 
-        // Saldo desconta Fixos também para dar realismo
-        document.getElementById('resSaldo').innerText = fmt(e - s - f);
-        document.getElementById('resEntradas').innerText = fmt(e);
-        document.getElementById('resSaidas').innerText = fmt(s + f);
-    }
+            <main class="content">
+                
+                <section id="view-home" class="view active">
+                    <h2>Visão Geral</h2>
+                    <div class="kpi-grid">
+                        <div class="kpi purple"><small>SALDO</small><span id="val-saldo">...</span></div>
+                        <div class="kpi green"><small>ENTRADAS</small><span id="val-ent">...</span></div>
+                        <div class="kpi red"><small>SAÍDAS</small><span id="val-sai">...</span></div>
+                    </div>
 
-    // --- RENDER DASH ---
-    function renderDash() {
-        if(!document.getElementById('chartEvo')) return;
+                    <div class="panel">
+                        <h3>Novo Lançamento</h3>
+                        <form id="form-trans">
+                            <input type="text" id="t-desc" placeholder="Descrição" required>
+                            <div class="row">
+                                <input type="number" id="t-val" placeholder="Valor" step="0.01" required>
+                                <input type="date" id="t-data" required>
+                            </div>
+                            <select id="t-tipo">
+                                <option value="saida">🔴 Saída</option>
+                                <option value="entrada">🟢 Entrada</option>
+                            </select>
+                            <button type="submit" class="btn btn-primary">Salvar</button>
+                        </form>
+                    </div>
 
-        let totalE = 0, totalS = 0, maior = {v:0, d:'--'};
-        const map = {};
-        
-        // Inicializa 6 meses
-        for(let i=5; i>=0; i--) {
-            const d = new Date(); d.setMonth(d.getMonth()-i);
-            const k = d.toISOString().slice(0,7);
-            map[k] = {e:0, s:0};
-        }
+                    <div class="panel">
+                        <h3>Extrato</h3>
+                        <div id="list-trans"></div>
+                    </div>
+                </section>
 
-        trans.forEach(t => {
-            if(!t.data) return;
-            const k = t.data.slice(0,7);
-            if(t.tipo === 'entrada') { 
-                totalE += t.valor; 
-                if(map[k]) map[k].e += t.valor;
-            } else { 
-                totalS += t.valor; 
-                if(map[k]) map[k].s += t.valor;
-                if(t.valor > maior.v) maior = {v:t.valor, d:t.desc};
-            }
-        });
+                <section id="view-dash" class="view hidden">
+                    <h2>Relatórios</h2>
+                    <div class="kpi-grid">
+                        <div class="panel center"><small>SAÚDE</small><h3 id="kpi-saude">--</h3></div>
+                        <div class="panel center"><small>POUPANÇA</small><h3 id="kpi-poupanca">--%</h3></div>
+                    </div>
+                    <div class="panel"><canvas id="chart-bar"></canvas></div>
+                    <div class="panel"><canvas id="chart-pie"></canvas></div>
+                </section>
 
-        // KPIs
-        const ratio = totalE > 0 ? (totalS/totalE)*100 : 0;
-        const kpiS = document.getElementById('kpiSaude');
-        if(totalE === 0) kpiS.innerHTML = '<span class="kpi-tag tag-warn">SEM DADOS</span>';
-        else if(ratio > 100) kpiS.innerHTML = '<span class="kpi-tag tag-bad">CRÍTICA</span>';
-        else if(ratio > 70) kpiS.innerHTML = '<span class="kpi-tag tag-warn">ATENÇÃO</span>';
-        else kpiS.innerHTML = '<span class="kpi-tag tag-good">EXCELENTE</span>';
+                <section id="view-notif" class="view hidden">
+                    <h2>Notificações</h2>
+                    <div class="panel">
+                        <form id="form-notif" class="row">
+                            <input type="text" id="n-desc" placeholder="Conta" required>
+                            <select id="n-dia" required><option value="">Dia...</option></select>
+                            <button type="submit" class="btn btn-primary">Criar</button>
+                        </form>
+                    </div>
+                    <div id="list-notif"></div>
+                </section>
 
-        const poupanca = totalE > 0 ? ((totalE - totalS)/totalE)*100 : 0;
-        document.getElementById('kpiPoupanca').innerText = Math.max(0, poupanca).toFixed(0) + '%';
-        document.getElementById('kpiMaior').innerText = fmt(maior.v);
+                <section id="view-admin" class="view hidden">
+                    <h2>Administração</h2>
+                    <div class="panel border-red">
+                        <h3>Usuários</h3>
+                        <div id="list-users">Carregando...</div>
+                    </div>
+                    <div class="panel">
+                        <h3>Logs de Auditoria</h3>
+                        <div id="list-logs">Carregando...</div>
+                    </div>
+                </section>
 
-        // Gráficos
-        const labels = Object.keys(map).map(k => { const [a,m] = k.split('-'); return `${m}/${a.slice(2)}`; });
-        const dEnt = Object.values(map).map(v => v.e);
-        const dSai = Object.values(map).map(v => v.s);
+            </main>
+        </div>
+    </div>
 
-        const ctx1 = document.getElementById('chartEvo');
-        if(ctx1) {
-            if(chart1) chart1.destroy();
-            chart1 = new Chart(ctx1.getContext('2d'), {
-                type: 'bar',
-                data: { labels, datasets: [{label:'Ganhos', data:dEnt, backgroundColor:'#10b981', borderRadius:6}, {label:'Gastos', data:dSai, backgroundColor:'#ef4444', borderRadius:6}] },
-                options: { responsive:true, maintainAspectRatio:false, scales:{x:{grid:{display:false}}, y:{beginAtZero:true}} }
-            });
-        }
-
-        const ctx2 = document.getElementById('chartDist');
-        if(ctx2) {
-            if(chart2) chart2.destroy();
-            chart2 = new Chart(ctx2.getContext('2d'), {
-                type: 'doughnut',
-                data: { labels: ['Ganho', 'Gasto'], datasets: [{data:[totalE, totalS], backgroundColor:['#10b981','#ef4444'], borderWidth:0}] },
-                options: { responsive:true, maintainAspectRatio:false, cutout:'70%' }
-            });
-        }
-    }
-
-    function renderNotif() {
-        const list = document.getElementById('listaNotif'); list.innerHTML = '';
-        notifs.sort((a,b) => a.dia - b.dia).forEach(n => {
-            list.innerHTML += `<div class="notif-item"><div style="display:flex; align-items:center"><div class="notif-day">${n.dia}</div><div style="font-weight:600; color:#334155">${n.desc}</div></div><button onclick="delNotif('${n.id}')" style="border:none; background:none; color:#cbd5e1; cursor:pointer; font-size:1.2rem">×</button></div>`;
-        });
-    }
-
-    function checkAlerts() {
-        if (!("Notification" in window)) return;
-        const hoje = new Date().getDate();
-        const contas = notifs.filter(n => n.dia === hoje);
-        const chave = 'aviso_' + new Date().toDateString();
-        
-        if (contas.length > 0 && Notification.permission === "granted" && !sessionStorage.getItem(chave)) {
-            new Notification(`📅 ${contas.length} Contas Vencendo Hoje!`, {
-                body: `Não esqueça de pagar: ${contas.map(c => c.desc).join(', ')}`,
-                icon: "https://cdn-icons-png.flaticon.com/512/2953/2953363.png"
-            });
-            sessionStorage.setItem(chave, 'true');
-        }
-    }
-
-    window.testarNotificacao = () => {
-        if (!("Notification" in window)) { alert("Navegador não suporta notificações."); return; }
-        Notification.requestPermission().then(p => {
-            if (p === "granted") new Notification("🔔 Funcionando!", { body: "Seus alertas aparecerão aqui.", icon: "https://cdn-icons-png.flaticon.com/512/2953/2953363.png" });
-            else alert("Permita notificações nas configurações do celular.");
-        });
-    }
-
-    window.toggleSidebar = () => { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
-    
-    window.go = (view, btn) => {
-        document.querySelectorAll('.menu-item').forEach(b => b.classList.remove('active')); if(btn) btn.classList.add('active');
-        document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active')); document.getElementById('view-'+view).classList.add('active');
-        if(window.innerWidth < 992) window.toggleSidebar();
-    }
-
-    // SALVAMENTO
-    document.getElementById('formTrans').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        try {
-            await addDoc(collection(db,"transacoes"), { desc: document.getElementById('desc').value, valor: parseFloat(document.getElementById('valor').value), tipo: document.getElementById('tipo').value, data: document.getElementById('data').value, createdAt: Date.now() });
-            e.target.reset(); document.getElementById('data').valueAsDate = new Date();
-        } catch(err) { console.error(err); alert("Erro ao salvar."); }
-    });
-
-    // NOVO: SALVAR FIXO
-    document.getElementById('formFixo').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        try {
-            await addDoc(collection(db,"fixos"), { desc: document.getElementById('fDesc').value, valor: parseFloat(document.getElementById('fValor').value) });
-            e.target.reset(); 
-        } catch(err) { alert("Erro ao fixar."); }
-    });
-
-    document.getElementById('formNotif').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        try { await addDoc(collection(db,"vencimentos"), { desc: document.getElementById('nDesc').value, dia: parseInt(document.getElementById('nDia').value) }); e.target.reset(); alert("Alerta criado!"); } catch(err) { alert("Erro ao criar alerta."); }
-    });
-
-    window.delT = async (id) => { if(confirm("Excluir?")) await deleteDoc(doc(db,"transacoes",id)); }
-    window.delF = async (id) => { if(confirm("Excluir fixo?")) await deleteDoc(doc(db,"fixos",id)); }
-    window.delNotif = async (id) => { if(confirm("Excluir?")) await deleteDoc(doc(db,"vencimentos",id)); }
-    
-    window.exportarExcel = () => {
-        const ws = XLSX.utils.json_to_sheet(trans);
-        const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Dados"); XLSX.writeFile(wb, "Financas.xlsx");
-    }
-    
-    function fmt(v) { return v.toLocaleString('pt-BR', {style:'currency', currency:'BRL'}); }
-
-    if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js')); }
-</script>
+    <script type="module" src="app.js"></script>
 </body>
 </html>

@@ -46,7 +46,22 @@
         .main-content { flex: 1; margin-left: var(--sidebar-width); padding: 30px; height: 100vh; overflow-y: auto; transition: margin-left 0.3s ease; }
         
         /* MOBILE COMPONENTS */
-        .mobile-header { display: none; align-items: center; justify-content: space-between; padding: 15px 20px; background: var(--surface); position: sticky; top: 0; z-index: 90; box-shadow: var(--shadow); margin: -30px -30px 20px -30px; }
+        .mobile-header { 
+            display: none; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 15px 20px; 
+            background: rgba(255, 255, 255, 0.95); /* Mais sólido */
+            backdrop-filter: blur(10px); /* Efeito vidro */
+            -webkit-backdrop-filter: blur(10px);
+            position: sticky; 
+            top: 0; 
+            z-index: 900; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08); 
+            /* Correção do overlap: Margem negativa para encostar nas bordas, margem positiva embaixo para empurrar o conteudo */
+            margin: -30px -30px 30px -30px; 
+        }
+
         .menu-btn { background: none; border: none; color: var(--text-main); padding: 5px; cursor: pointer; }
         #overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); z-index:900; display:none; backdrop-filter: blur(2px); }
         #overlay.active { display: block; }
@@ -87,8 +102,11 @@
         @media (max-width: 991px) {
             .sidebar { transform: translateX(-100%); width: 280px; }
             .sidebar.active { transform: translateX(0); }
-            .main-content { margin-left: 0; padding: 20px; }
-            .mobile-header { display: flex; }
+            /* Ajuste de padding no mobile para compensar o header fixo */
+            .main-content { margin-left: 0; padding: 20px; padding-top: 0; }
+            .mobile-header { display: flex; margin: 0 -20px 25px -20px; }
+            /* Empurrar título um pouco mais pra baixo */
+            h2 { margin-top: 10px; }
         }
     </style>
 </head>
@@ -402,8 +420,6 @@
     window.go = (view, btn) => {
         document.querySelectorAll('.menu-item').forEach(b => b.classList.remove('active')); if(btn) btn.classList.add('active');
         document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active')); document.getElementById('view-'+view).classList.add('active');
-        
-        if(view === 'dash') renderDash();
         if(window.innerWidth < 992) window.toggleSidebar();
     }
 

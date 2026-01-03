@@ -7,6 +7,7 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#4f46e5">
     
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2953/2953363.png">
     <link rel="stylesheet" href="style.css">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -17,22 +18,19 @@
 
     <div id="loading-overlay">
         <div class="spinner"></div>
-        <p>Iniciando sistema...</p>
+        <p>Carregando...</p>
     </div>
 
     <div id="auth-screen">
         <div class="card-auth">
-            <h2 class="text-primary">Finanças Pro</h2>
-            <p class="text-muted">Acesso Corporativo</p>
-            
+            <h2 style="color:var(--primary)">Finanças Pro</h2>
+            <p style="color:#666">Gestão Corporativa</p>
             <form id="form-login">
                 <input type="email" id="login-email" placeholder="E-mail" required>
                 <input type="password" id="login-pass" placeholder="Senha" required>
                 <button type="submit" class="btn btn-primary">Entrar</button>
             </form>
-            
-            <button id="btn-show-register" class="btn-link">Não tem conta? Cadastrar</button>
-            
+            <button id="btn-show-register" class="btn-link">Criar Conta</button>
             <form id="form-register" class="hidden">
                 <input type="text" id="reg-name" placeholder="Nome" required>
                 <input type="email" id="reg-email" placeholder="E-mail" required>
@@ -44,20 +42,21 @@
     </div>
 
     <div id="app-screen" class="hidden">
-        
         <header class="mobile-header">
             <h3>Finanças Pro</h3>
-            <button id="btn-menu-toggle">☰</button>
+            <button id="btn-menu-toggle" style="background:none; border:none; font-size:1.5rem">☰</button>
         </header>
 
         <div class="layout-container">
+            <div id="sidebar-overlay"></div>
+
             <nav id="sidebar" class="sidebar">
                 <div class="logo">Finanças Pro</div>
                 <div class="menu">
                     <button class="menu-item active" data-target="home">🏠 Início</button>
                     <button class="menu-item" data-target="dash">📊 Relatórios</button>
                     <button class="menu-item" data-target="notif">🔔 Notificações</button>
-                    <button class="menu-item admin-only hidden" data-target="admin">🔒 Admin</button>
+                    <button class="menu-item admin-only hidden" data-target="admin" style="color:red">🔒 Admin</button>
                 </div>
                 <div class="user-footer">
                     <small id="user-display">...</small>
@@ -65,7 +64,7 @@
                 </div>
             </nav>
 
-            <main class="content">
+            <main class="content main-content">
                 
                 <section id="view-home" class="view active">
                     <h2>Visão Geral</h2>
@@ -74,7 +73,6 @@
                         <div class="kpi green"><small>ENTRADAS</small><span id="val-ent">...</span></div>
                         <div class="kpi red"><small>SAÍDAS</small><span id="val-sai">...</span></div>
                     </div>
-
                     <div class="panel">
                         <h3>Novo Lançamento</h3>
                         <form id="form-trans">
@@ -90,24 +88,32 @@
                             <button type="submit" class="btn btn-primary">Salvar</button>
                         </form>
                     </div>
-
+                    <div class="panel">
+                        <h3>Gastos Fixos</h3>
+                        <form id="form-fixo" class="row">
+                            <input type="text" id="f-desc" placeholder="Nome" required>
+                            <input type="number" id="f-val" placeholder="Valor" step="0.01" required>
+                            <button type="submit" class="btn btn-small">+</button>
+                        </form>
+                        <div id="list-fixos" style="margin-top:10px"></div>
+                    </div>
                     <div class="panel">
                         <h3>Extrato</h3>
                         <div id="list-trans"></div>
                     </div>
                 </section>
 
-                <section id="view-dash" class="view hidden">
+                <section id="view-dash" class="view">
                     <h2>Relatórios</h2>
                     <div class="kpi-grid">
                         <div class="panel center"><small>SAÚDE</small><h3 id="kpi-saude">--</h3></div>
                         <div class="panel center"><small>POUPANÇA</small><h3 id="kpi-poupanca">--%</h3></div>
                     </div>
-                    <div class="panel"><canvas id="chart-bar"></canvas></div>
-                    <div class="panel"><canvas id="chart-pie"></canvas></div>
+                    <div class="panel"><canvas id="chart-bar" height="250"></canvas></div>
+                    <div class="panel"><canvas id="chart-pie" height="250"></canvas></div>
                 </section>
 
-                <section id="view-notif" class="view hidden">
+                <section id="view-notif" class="view">
                     <h2>Notificações</h2>
                     <div class="panel">
                         <form id="form-notif" class="row">
@@ -117,9 +123,10 @@
                         </form>
                     </div>
                     <div id="list-notif"></div>
+                    <button id="btn-test-notif" class="btn" style="margin-top:20px; background:#eee; color:#333">Testar</button>
                 </section>
 
-                <section id="view-admin" class="view hidden">
+                <section id="view-admin" class="view">
                     <h2>Administração</h2>
                     <div class="panel border-red">
                         <h3>Usuários</h3>
@@ -127,7 +134,7 @@
                     </div>
                     <div class="panel">
                         <h3>Logs de Auditoria</h3>
-                        <div id="list-logs">Carregando...</div>
+                        <div id="list-logs" style="max-height:300px; overflow:auto">Carregando...</div>
                     </div>
                 </section>
 

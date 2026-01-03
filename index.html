@@ -4,29 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Finanças Pro Mobile</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💲</text></svg>">
     
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Finanças Pro">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2953/2953363.png">
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2953/2953363.png">
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         :root { --primary: #2563eb; --success: #10b981; --danger: #ef4444; --bg: #f8fafc; --fixo: #7c3aed; --dark: #0f172a; --card-bg: #ffffff; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-        body { background: var(--bg); margin: 0; padding: 0; color: var(--dark); padding-bottom: 90px; /* Espaço para menu mobile */ }
+        body { background: var(--bg); margin: 0; padding: 0; color: var(--dark); padding-bottom: 90px; }
 
-        /* --- CABEÇALHO --- */
+        /* HEADER */
         header { background: var(--card-bg); padding: 15px 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 50; }
         .header-content { display: flex; align-items: center; justify-content: space-between; max-width: 1200px; margin: 0 auto; }
         h1 { margin: 0; font-size: 1.1rem; font-weight: 700; color: var(--dark); display: flex; align-items: center; gap: 8px; }
 
-        /* --- LOADING --- */
+        /* LOADING */
         #loading { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.98); z-index:2000; display: flex; flex-direction: column; justify-content:center; align-items:center; transition: opacity 0.5s; }
 
-        /* --- LAYOUT GERAL --- */
+        /* LAYOUT */
         .container { max-width: 1200px; margin: 0 auto; padding: 15px; }
         .hidden { display: none !important; }
         
-        /* --- VISÃO OPERACIONAL (CARDS E LISTAS) --- */
+        /* CARDS E LISTAS */
         .summary-scroll { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 20px; scrollbar-width: none; }
         .mini-card { min-width: 140px; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #f1f5f9; }
         .mini-card small { font-size: 0.7rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -40,7 +47,6 @@
         input:focus, select:focus { border-color: var(--primary); }
         .btn-primary { background: var(--primary); color: white; border: none; font-weight: 600; cursor: pointer; box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2); }
         .btn-primary:active { transform: scale(0.98); }
-        
         .row-inputs { display: flex; gap: 10px; }
         .row-inputs input[type="date"] { width: 40%; }
         .row-inputs input[type="number"] { width: 60%; }
@@ -52,26 +58,23 @@
         .trans-val { font-weight: 700; font-size: 0.95rem; text-align: right; }
         .btn-del { font-size: 0.7rem; color: #cbd5e1; display: block; margin-top: 2px; cursor: pointer; }
 
-        /* --- DASHBOARD MOBILE (ESTILOS CORRIGIDOS) --- */
-        .dash-kpi-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-bottom: 25px; } /* Empilhado no mobile */
-        
+        /* DASHBOARD MOBILE */
+        .dash-kpi-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-bottom: 25px; }
         .kpi-box { background: white; padding: 20px; border-radius: 14px; border-left: 5px solid #ccc; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
         .kpi-box.good { border-left-color: var(--success); }
         .kpi-box.bad { border-left-color: var(--danger); }
         .kpi-label { font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; }
         .kpi-number { font-size: 1.8rem; font-weight: 800; margin: 5px 0; color: #0f172a; }
         .kpi-desc { font-size: 0.85rem; color: #64748b; }
-
         .chart-wrapper { background: white; padding: 15px; border-radius: 16px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
         .chart-box { position: relative; height: 260px; width: 100%; }
 
-        /* --- MENU INFERIOR (MOBILE) --- */
+        /* MENU INFERIOR */
         .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-around; padding: 12px 0; z-index: 100; box-shadow: 0 -2px 10px rgba(0,0,0,0.03); }
         .nav-item { border: none; background: none; color: #94a3b8; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 0.7rem; width: 100%; }
         .nav-item span { font-size: 1.4rem; }
         .nav-item.active { color: var(--primary); font-weight: 700; }
 
-        /* --- DESKTOP TWEAKS --- */
         .desktop-menu { display: none; gap: 15px; }
         .d-btn { background: #f1f5f9; padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; color: #475569; }
         .d-btn.active { background: var(--primary); color: white; }
@@ -83,12 +86,21 @@
             .main-layout { display: grid; grid-template-columns: 350px 1fr; gap: 20px; align-items: start; }
             .container { max-width: 1200px; padding: 20px; }
         }
-        
         .text-success { color: var(--success); }
         .text-danger { color: var(--danger); }
     </style>
 </head>
 <body>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(reg => console.log('App pronto para instalar:', reg.scope))
+        .catch(err => console.log('Erro PWA:', err));
+    });
+  }
+</script>
 
 <div id="loading">
     <div style="font-size:2.5rem; animation: spin 1s infinite linear">⏳</div>
@@ -110,21 +122,11 @@
 </header>
 
 <div class="container">
-
     <div id="view-home">
         <div class="summary-scroll">
-            <div class="mini-card">
-                <small>Saldo Atual</small>
-                <div class="val" id="resSaldo">...</div>
-            </div>
-            <div class="mini-card">
-                <small>Entradas (Mês)</small>
-                <div class="val text-success" id="resEntradas">...</div>
-            </div>
-            <div class="mini-card">
-                <small>Saídas (Mês)</small>
-                <div class="val text-danger" id="resSaidas">...</div>
-            </div>
+            <div class="mini-card"><small>Saldo Atual</small><div class="val" id="resSaldo">...</div></div>
+            <div class="mini-card"><small>Entradas (Mês)</small><div class="val text-success" id="resEntradas">...</div></div>
+            <div class="mini-card"><small>Saídas (Mês)</small><div class="val text-danger" id="resSaidas">...</div></div>
         </div>
 
         <div class="main-layout">
@@ -146,7 +148,7 @@
                 </div>
 
                 <div class="panel">
-                    <h3 class="title">Gastos Fixos (Todo mês)</h3>
+                    <h3 class="title">Gastos Fixos (Mensal)</h3>
                     <form id="formFixo">
                         <input type="text" id="fDesc" placeholder="Ex: Internet" required>
                         <input type="number" id="fValor" placeholder="R$ 0,00" step="0.01" required>
@@ -166,54 +168,38 @@
 
     <div id="view-dash" class="hidden">
         <h2 style="margin: 0 0 20px 0; font-size:1.2rem; color:#334155">Análise Financeira</h2>
-
         <div class="dash-kpi-grid">
             <div class="kpi-box" id="cardSaude">
                 <div class="kpi-label">Saúde Financeira</div>
                 <div class="kpi-number" id="kpiSaudeVal">--</div>
                 <div class="kpi-desc" id="kpiSaudeMsg">Analisando...</div>
             </div>
-            
             <div class="kpi-box good">
                 <div class="kpi-label">Economia (Mês)</div>
                 <div class="kpi-number" id="kpiEconVal">0%</div>
                 <div class="kpi-desc">da renda foi guardada</div>
             </div>
-
             <div class="kpi-box bad">
                 <div class="kpi-label">Maior Gasto (Mês)</div>
                 <div class="kpi-number text-danger" id="kpiMaiorVal">R$ 0</div>
                 <div class="kpi-desc" id="kpiMaiorDesc">--</div>
             </div>
         </div>
-
-        <div class="chart-wrapper">
-            <h3 class="title">Evolução Mensal</h3>
-            <div class="chart-box"><canvas id="chartEvo"></canvas></div>
-        </div>
-
-        <div class="chart-wrapper">
-            <h3 class="title">Para onde foi o dinheiro?</h3>
-            <div class="chart-box"><canvas id="chartDist"></canvas></div>
-        </div>
+        <div class="chart-wrapper"><h3 class="title">Evolução Mensal</h3><div class="chart-box"><canvas id="chartEvo"></canvas></div></div>
+        <div class="chart-wrapper"><h3 class="title">Destino do Dinheiro</h3><div class="chart-box"><canvas id="chartDist"></canvas></div></div>
     </div>
-
 </div>
 
 <nav class="bottom-nav">
-    <button class="nav-item active" onclick="go('home', this)">
-        <span>📝</span>Lançar
-    </button>
-    <button class="nav-item" onclick="go('dash', this)">
-        <span>📊</span>Dashboard
-    </button>
+    <button class="nav-item active" onclick="go('home', this)"><span>📝</span>Lançar</button>
+    <button class="nav-item" onclick="go('dash', this)"><span>📊</span>Dashboard</button>
 </nav>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
     import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
-    // --- FIREBASE CONFIG (SEU PROJETO) ---
+    // --- FIREBASE CONFIG ---
     const firebaseConfig = {
         apiKey: "AIzaSyC2NH5D5-dBk057use7wRQtF25vcBDw7Lo",
         authDomain: "financas-2abdf.firebaseapp.com",
@@ -229,11 +215,8 @@
 
     let trans = [], fixos = [];
     let chart1 = null, chart2 = null;
-
-    // DATA DE HOJE
     document.getElementById('data').valueAsDate = new Date();
 
-    // LEITURA DE DADOS
     const qT = query(collection(db, "transacoes"), orderBy("data", "desc"));
     onSnapshot(qT, (snap) => {
         trans = snap.docs.map(d => ({id:d.id, ...d.data()}));
@@ -249,39 +232,26 @@
 
     function renderAll() {
         renderHome();
-        if(!document.getElementById('view-dash').classList.contains('hidden')) {
-            renderDash();
-        }
+        if(!document.getElementById('view-dash').classList.contains('hidden')) renderDash();
     }
 
-    // --- RENDERIZAR TELA HOME ---
     function renderHome() {
-        const listT = document.getElementById('listaTrans');
-        const listF = document.getElementById('listaFixos');
+        const listT = document.getElementById('listaTrans'), listF = document.getElementById('listaFixos');
         listT.innerHTML = ''; listF.innerHTML = '';
-        
         let e = 0, s = 0, f = 0;
         
-        // Fixos
         fixos.forEach(x => {
             f += x.valor;
             listF.innerHTML += `<div class="trans-item"><span>${x.desc}</span><span style="font-weight:bold">${fmt(x.valor)} <span onclick="delF('${x.id}')" style="color:#ccc;cursor:pointer">✕</span></span></div>`;
         });
 
-        // Transações (Limitadas a 30 para não travar celular)
         trans.slice(0, 30).forEach(t => {
             if(t.tipo === 'entrada') e += t.valor; else s += t.valor;
             const isEnt = t.tipo === 'entrada';
             listT.innerHTML += `
             <div class="trans-item">
-                <div class="trans-info">
-                    <div>${t.desc}</div>
-                    <div>${t.data.split('-').reverse().join('/')}</div>
-                </div>
-                <div>
-                    <div class="trans-val ${isEnt?'text-success':'text-danger'}">${isEnt?'+':'-'} ${fmt(t.valor)}</div>
-                    <span class="btn-del" onclick="delT('${t.id}')">Excluir</span>
-                </div>
+                <div class="trans-info"><div>${t.desc}</div><div>${t.data.split('-').reverse().join('/')}</div></div>
+                <div><div class="trans-val ${isEnt?'text-success':'text-danger'}">${isEnt?'+':'-'} ${fmt(t.valor)}</div><span class="btn-del" onclick="delT('${t.id}')">Excluir</span></div>
             </div>`;
         });
 
@@ -292,36 +262,22 @@
         document.getElementById('resSaidas').innerText = fmt(s + f);
     }
 
-    // --- RENDERIZAR TELA DASHBOARD ---
     function renderDash() {
         const totalFixo = fixos.reduce((a,b)=>a+b.valor, 0);
         let totalE = 0, totalS = 0;
         let maior = {v:0, d:'--'};
-
-        // Agrupar por mês
         const map = {};
-        for(let i=5; i>=0; i--) { // Ultimos 6 meses
-            const d = new Date(); d.setMonth(d.getMonth()-i);
-            map[d.toISOString().slice(0,7)] = {e:0, s:0};
-        }
+        for(let i=5; i>=0; i--) { const d = new Date(); d.setMonth(d.getMonth()-i); map[d.toISOString().slice(0,7)] = {e:0, s:0}; }
 
         trans.forEach(t => {
             const k = t.data.slice(0,7);
-            if(t.tipo === 'entrada') {
-                totalE += t.valor;
-                if(map[k]) map[k].e += t.valor;
-            } else {
-                totalS += t.valor;
-                if(map[k]) map[k].s += t.valor;
-                if(t.valor > maior.v) maior = {v:t.valor, d:t.desc};
-            }
+            if(t.tipo === 'entrada') { totalE += t.valor; if(map[k]) map[k].e += t.valor; }
+            else { totalS += t.valor; if(map[k]) map[k].s += t.valor; if(t.valor > maior.v) maior = {v:t.valor, d:t.desc}; }
         });
 
-        // Somar fixos nos meses
         Object.keys(map).forEach(k => map[k].s += totalFixo);
-        totalS += totalFixo; // Estimativa total
+        totalS += totalFixo;
 
-        // KPIs
         const ratio = totalE > 0 ? (totalS/totalE)*100 : 100;
         const econ = totalE > 0 ? ((totalE - totalS)/totalE)*100 : 0;
         
@@ -329,81 +285,40 @@
         document.getElementById('kpiMaiorVal').innerText = fmt(maior.v);
         document.getElementById('kpiMaiorDesc').innerText = maior.d;
 
-        const cardS = document.getElementById('cardSaude');
-        const txtS = document.getElementById('kpiSaudeVal');
-        const msgS = document.getElementById('kpiSaudeMsg');
-
+        const cardS = document.getElementById('cardSaude'), txtS = document.getElementById('kpiSaudeVal'), msgS = document.getElementById('kpiSaudeMsg');
         if(ratio > 100) { cardS.className='kpi-box bad'; txtS.innerText='Crítica'; msgS.innerText='Gastos > Ganhos!'; }
         else if(ratio > 70) { cardS.className='kpi-box'; cardS.style.borderLeftColor='#f59e0b'; txtS.innerText='Alerta'; msgS.innerText='Gasto elevado'; }
         else { cardS.className='kpi-box good'; txtS.innerText='Ótima'; msgS.innerText='Finanças saudáveis'; }
 
-        // CHART 1: Barras
         const labels = Object.keys(map).map(k => {const p=k.split('-'); return `${p[1]}/${p[0].slice(2)}`});
-        const dataE = Object.values(map).map(v => v.e);
-        const dataS = Object.values(map).map(v => v.s);
+        const dataE = Object.values(map).map(v => v.e), dataS = Object.values(map).map(v => v.s);
 
         const ctx1 = document.getElementById('chartEvo').getContext('2d');
         if(chart1) chart1.destroy();
-        chart1 = new Chart(ctx1, {
-            type: 'bar',
-            data: { labels: labels, datasets: [{label:'Entrou', data:dataE, backgroundColor:'#10b981', borderRadius:4}, {label:'Saiu', data:dataS, backgroundColor:'#ef4444', borderRadius:4}] },
-            options: { responsive:true, maintainAspectRatio:false, scales:{x:{grid:{display:false}}, y:{beginAtZero:true}} }
-        });
+        chart1 = new Chart(ctx1, { type: 'bar', data: { labels, datasets: [{label:'Entrou', data:dataE, backgroundColor:'#10b981', borderRadius:4}, {label:'Saiu', data:dataS, backgroundColor:'#ef4444', borderRadius:4}] }, options: { responsive:true, maintainAspectRatio:false, scales:{x:{grid:{display:false}}, y:{beginAtZero:true}} } });
 
-        // CHART 2: Rosca
         const ctx2 = document.getElementById('chartDist').getContext('2d');
         if(chart2) chart2.destroy();
-        chart2 = new Chart(ctx2, {
-            type: 'doughnut',
-            data: { labels: ['Ganho Total', 'Gasto Total'], datasets: [{data:[totalE, totalS], backgroundColor:['#10b981','#ef4444'], borderWidth:0}] },
-            options: { responsive:true, maintainAspectRatio:false, cutout:'70%' }
-        });
+        chart2 = new Chart(ctx2, { type: 'doughnut', data: { labels: ['Ganho Total', 'Gasto Total'], datasets: [{data:[totalE, totalS], backgroundColor:['#10b981','#ef4444'], borderWidth:0}] }, options: { responsive:true, maintainAspectRatio:false, cutout:'70%' } });
     }
 
-    // --- NAVEGAÇÃO ---
     window.go = (screen, btn) => {
-        // Menu visual
         document.querySelectorAll('.nav-item, .d-btn').forEach(b => b.classList.remove('active'));
         if(btn) btn.classList.add('active');
-
-        // Troca tela
-        if(screen === 'home') {
-            document.getElementById('view-home').classList.remove('hidden');
-            document.getElementById('view-dash').classList.add('hidden');
-        } else {
-            document.getElementById('view-home').classList.add('hidden');
-            document.getElementById('view-dash').classList.remove('hidden');
-            renderDash();
-        }
+        if(screen === 'home') { document.getElementById('view-home').classList.remove('hidden'); document.getElementById('view-dash').classList.add('hidden'); }
+        else { document.getElementById('view-home').classList.add('hidden'); document.getElementById('view-dash').classList.remove('hidden'); renderDash(); }
     }
 
-    // --- FUNÇÕES DE DADOS ---
     function fmt(v) { return v.toLocaleString('pt-BR', {style:'currency', currency:'BRL'}); }
 
     document.getElementById('formTrans').addEventListener('submit', async (e) => {
         e.preventDefault();
-        try {
-            await addDoc(collection(db,"transacoes"), {
-                desc: document.getElementById('desc').value,
-                valor: parseFloat(document.getElementById('valor').value),
-                tipo: document.getElementById('tipo').value,
-                data: document.getElementById('data').value,
-                createdAt: Date.now()
-            });
-            e.target.reset(); document.getElementById('data').valueAsDate = new Date();
-            alert("Salvo!");
-        } catch(err) { alert(err.message); }
+        try { await addDoc(collection(db,"transacoes"), { desc: document.getElementById('desc').value, valor: parseFloat(document.getElementById('valor').value), tipo: document.getElementById('tipo').value, data: document.getElementById('data').value, createdAt: Date.now() }); e.target.reset(); document.getElementById('data').valueAsDate = new Date(); alert("Salvo!"); } catch(err) { alert(err.message); }
     });
 
     document.getElementById('formFixo').addEventListener('submit', async (e) => {
         e.preventDefault();
-        try {
-            await addDoc(collection(db,"fixos"), {
-                desc: document.getElementById('fDesc').value,
-                valor: parseFloat(document.getElementById('fValor').value)
-            });
-            e.target.reset();
-        } catch(err) { alert(err.message); }
+        try { await addDoc(collection(db,"fixos"), { desc: document.getElementById('fDesc').value, valor: parseFloat(document.getElementById('fValor').value) }); e.target.reset(); } catch(err) { alert(err.message); }
     });
 
     window.delT = async (id) => { if(confirm("Apagar?")) await deleteDoc(doc(db,"transacoes",id)); }
@@ -411,9 +326,7 @@
     
     window.exportarExcel = () => {
         const ws = XLSX.utils.json_to_sheet([...trans, ...fixos.map(x=>({...x, tipo:'FIXO'}))]);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Financas");
-        XLSX.writeFile(wb, "Financas_Mobile.xlsx");
+        const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Financas"); XLSX.writeFile(wb, "Financas_Mobile.xlsx");
     }
 </script>
 </body>

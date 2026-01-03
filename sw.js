@@ -1,4 +1,4 @@
-const CACHE_NAME = 'financas-v15-final';
+const CACHE_NAME = 'financas-v20-gold';
 const urls = ['./', './index.html', './style.css', './app.js', './manifest.json'];
 
 self.addEventListener('install', e => {

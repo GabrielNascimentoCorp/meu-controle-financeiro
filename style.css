@@ -4,28 +4,28 @@
     --bg: #f8fafc;
     --text: #1e293b;
     --card-bg: #ffffff;
+    --danger: #ef4444;
 }
 
 * { box-sizing: border-box; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
 
-/* 1. TRAVAMENTO DA TELA (CRUCIAL PARA CELULAR) */
+/* 1. TRAVA DE TELA (CORREÇÃO MOBILE) */
 html, body {
     margin: 0;
     padding: 0;
     width: 100%;
-    height: 100dvh; /* Usa DVH (Dynamic Viewport Height) para ignorar barra do navegador */
+    height: 100dvh; /* Altura dinâmica real */
     background: var(--bg);
     color: var(--text);
-    overflow: hidden; /* Impede a tela inteira de pular */
+    overflow: hidden; /* Impede a página toda de rolar */
 }
 
-/* 2. ESTRUTURA VERTICAL DO APP */
+/* 2. ESTRUTURA VERTICAL */
 #app-screen {
     display: flex;
     flex-direction: column;
     height: 100%;
     width: 100%;
-    overflow: hidden;
 }
 
 .mobile-header { 
@@ -35,20 +35,19 @@ html, body {
     align-items: center; 
     justify-content: space-between; 
     border-bottom: 1px solid #eee;
-    flex-shrink: 0; /* Garante que o topo nunca seja esmagado */
+    flex-shrink: 0; /* Impede que seja esmagado */
     z-index: 2000;
 }
 
-/* 3. CONTAINER DO MEIO (A CORREÇÃO ESTÁ AQUI) */
 .layout-container {
     display: flex;
-    flex: 1; /* Ocupa todo o espaço que sobra */
-    overflow: hidden; /* Segura o conteúdo dentro */
+    flex: 1; /* Ocupa o resto da tela */
+    overflow: hidden; /* Segura o conteúdo */
     position: relative;
-    min-height: 0; /* OBRIGATÓRIO: Permite que o flexbox calcule a rolagem interna */
+    min-height: 0; /* Segredo do Flexbox para scroll funcionar */
 }
 
-/* SIDEBAR */
+/* 3. SIDEBAR */
 .sidebar { 
     width: 250px; 
     background: white; 
@@ -62,25 +61,24 @@ html, body {
     overflow-y: auto; 
 }
 
-/* 4. ÁREA DE CONTEÚDO (AQUI É A ROLAGEM) */
+/* 4. CONTEÚDO (SCROLL AQUI) */
 .content { 
     flex: 1; 
     height: 100%; 
-    overflow-y: auto; /* Ativa a rolagem vertical */
+    overflow-y: auto; /* Ativa scroll */
     padding: 20px; 
-    -webkit-overflow-scrolling: touch; /* Rolagem macia no iPhone */
-    padding-bottom: 120px; /* Espaço extra generoso no final para celular */
+    -webkit-overflow-scrolling: touch; 
+    padding-bottom: 120px; /* Espaço extra no final */
 }
 
-/* 5. VISIBILIDADE DAS ABAS */
+/* 5. SISTEMA DE ABAS (CORREÇÃO DE VISIBILIDADE) */
 .view { 
-    display: none; 
+    display: none !important; /* Força sumir */
     opacity: 0;
-    transition: opacity 0.2s ease;
 }
 
 .view.active { 
-    display: block; 
+    display: block !important; /* Força aparecer */
     opacity: 1;
     animation: fadeIn 0.3s forwards;
 }
@@ -111,6 +109,7 @@ html, body {
 .kpi span { font-size: 1.6rem; font-weight: 700; margin-top: 5px; }
 
 .panel { background: white; padding: 25px; border-radius: 16px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+.border-red { border-left: 4px solid var(--danger); }
 .center { text-align: center; }
 
 input, select { width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid #e2e8f0; border-radius: 10px; background: #f8fafc; font-size: 1rem; outline: none; }
@@ -137,14 +136,24 @@ input:focus { border-color: var(--primary); background: white; }
 
 /* RESPONSIVO MOBILE */
 @media (max-width: 768px) {
-    .sidebar { position: fixed; top: 0; left: -100%; height: 100%; box-shadow: 5px 0 20px rgba(0,0,0,0.1); }
-    .sidebar.open { left: 0; }
+    .sidebar { 
+        position: fixed; top: 0; left: 0; height: 100%; width: 280px; 
+        transform: translateX(-100%); /* Esconde na esquerda */
+        transition: transform 0.3s ease; 
+        z-index: 2500; /* Acima de tudo */
+        box-shadow: 5px 0 20px rgba(0,0,0,0.1); 
+    }
+    .sidebar.open { transform: translateX(0); } /* Mostra */
+    
     .mobile-header { display: flex; }
     
-    /* Overlay do Menu */
-    #sidebar-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:900; display:none; }
+    /* Overlay Escuro */
+    #sidebar-overlay { 
+        position: fixed; top:0; left:0; width:100%; height:100%; 
+        background:rgba(0,0,0,0.5); z-index: 2400; 
+        display:none; 
+    }
     #sidebar-overlay.visible { display: block; }
     
-    /* Ajuste fino para inputs não darem zoom no iOS */
-    input, select { font-size: 16px; }
+    input, select { font-size: 16px; } /* Evita zoom no iPhone */
 }

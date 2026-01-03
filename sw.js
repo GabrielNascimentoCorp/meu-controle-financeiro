@@ -1,4 +1,4 @@
-const CACHE_NAME = 'financas-v13-scrollfix';
+const CACHE_NAME = 'financas-v15-final';
 const urls = ['./', './index.html', './style.css', './app.js', './manifest.json'];
 
 self.addEventListener('install', e => {

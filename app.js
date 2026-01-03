@@ -2,7 +2,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebas
 import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
 
-// --- CHAVES FIREBASE AQUI ---
+// --- COLE SUAS CHAVES AQUI ---
 const firebaseConfig = {
     apiKey: "AIzaSyC2NH5D5-dBk057use7wRQtF25vcBDw7Lo",
     authDomain: "financas-2abdf.firebaseapp.com",
@@ -21,7 +21,7 @@ try {
     const app = initializeApp(firebaseConfig);
     db = getFirestore(app);
     auth = getAuth(app);
-} catch (e) { console.error(e); }
+} catch (e) { console.error("Firebase Error", e); }
 
 const loadingScreen = document.getElementById('loading-overlay');
 const authScreen = document.getElementById('auth-screen');
@@ -61,27 +61,26 @@ onAuthStateChanged(auth, async (user) => {
 
 document.addEventListener('DOMContentLoaded', () => {
     
-    // --- CORREÇÃO DO CLICK NAS ABAS ---
+    // --- NAVEGAÇÃO ABAS (BLINDADA) ---
     const menuItems = document.querySelectorAll('.menu-item');
-    const views = document.querySelectorAll('.view'); // Procura pela classe .view
+    const views = document.querySelectorAll('.view'); // Busca pela classe 'view'
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebar-overlay');
 
     menuItems.forEach(btn => {
         btn.addEventListener('click', () => {
-            // Tira active de tudo
+            // Remove active
             menuItems.forEach(b => b.classList.remove('active'));
             views.forEach(v => v.classList.remove('active'));
             
-            // Põe active no clicado
+            // Adiciona active
             btn.classList.add('active');
             
-            // Pega o ID alvo (ex: 'home') e busca 'view-home'
             const targetId = btn.getAttribute('data-target');
             const targetView = document.getElementById('view-' + targetId);
             
             if(targetView) {
-                targetView.classList.add('active'); // O CSS fará ele aparecer
+                targetView.classList.add('active');
                 if(targetId === 'dash') renderCharts();
             }
 
@@ -119,7 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if(btnMenu) {
         btnMenu.addEventListener('click', () => {
             sidebar.classList.toggle('open');
-            if(overlay) overlay.classList.toggle('visible');
+            overlay.classList.toggle('visible');
         });
         if(overlay) overlay.addEventListener('click', () => {
             sidebar.classList.remove('open');
@@ -245,9 +244,21 @@ function initAdmin() {
     });
 }
 
-// Funções Globais para o HTML acessar
+// Funções Globais (Crucial para clicks inline)
 window.delItem = async (id, col) => { if(confirm("Excluir?")) await deleteDoc(doc(db, col, id)); }
 window.changeRole = async (uid, r) => { if(confirm("Mudar cargo?")) await updateDoc(doc(db,"users",uid),{role:r==='admin'?'user':'admin'}); }
 async function gravarLog(a, d) { if(currentUser) await addDoc(collection(db,"logs"),{user:currentUser.email,action:a,details:d,timestamp:Date.now()}); }
+
+// Puxar para Atualizar (Mobile)
+let touchStart = 0;
+const contentArea = document.querySelector('.content');
+if (contentArea) {
+    contentArea.addEventListener('touchstart', (e) => { if (contentArea.scrollTop === 0) touchStart = e.touches[0].clientY; }, { passive: true });
+    contentArea.addEventListener('touchend', (e) => {
+        const touchEnd = e.changedTouches[0].clientY;
+        if (touchStart > 0 && touchEnd - touchStart > 150 && contentArea.scrollTop === 0) window.location.reload();
+        touchStart = 0;
+    }, { passive: true });
+}
 
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
